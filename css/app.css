@@ -1,0 +1,303 @@
+* {
+    border: 1px solid blue;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+button{
+        border-width: 1px;
+    border-color: gray;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.cancel-nav {
+    visibility: hidden;
+    position: fixed;
+    right: 15px;
+    top: 35px;
+    z-index: 2;
+}
+
+.cancel-visible {
+    visibility: visible;
+}
+
+#map {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    bottom: 100%;
+    z-index: 1;
+    transition: height 0.2s;
+}
+
+.map-size {
+    width: 100%;
+    height: 100%;
+}
+
+.resize-map {
+    height: 70%;
+}
+
+.nav-info {
+    height: 30%;
+}
+
+.nav-info .nav-info-icon {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.nav-info p {
+    margin-top: 0px;
+}
+
+.nav-info-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.nav-info-buttons button {
+    width: 40%;
+    border-color: gray;
+    border-radius: 5px;
+    background-color: white;
+}
+
+.hide-nav-info {
+    height: 0%;
+}
+
+
+/*Show panorama in a square of 80 viewport width*/
+
+#pano {
+    width: 80vw;
+    height: 80vw;
+    border-radius: 10px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+/* Menu container for small screens */
+
+.menu-container {
+    width: 80vw;
+    height: 100%;
+    position: fixed;
+    background: white;
+    overflow: hidden;
+    top: 0px;
+    left: -80vw;
+    z-index: 2;
+}
+
+.results-container {
+    width: 80vw;
+    height: 100%;
+    position: fixed;
+    background: white;
+    overflow: hidden;
+    top: 0px;
+    right: -80vw;
+    z-index: 2;
+}
+
+.show-results {
+    right: 0vw;
+}
+
+
+/*Hidden checkbox*/
+
+.nav-trigger,
+.results-trigger {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+}
+
+
+/*Hamburger icon*/
+
+label[for="nav-trigger"] {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+
+/*Menu open*/
+
+.nav-trigger:checked + label {
+    left: 80vw;
+}
+
+
+/*Menu open show container*/
+
+.nav-trigger:checked ~ .menu-container {
+    left: 0px;
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+
+/*Menu open animation*/
+
+.nav-trigger + label,
+.menu-container {
+    transition: left 0.2s;
+}
+
+
+/*Search area*/
+
+.search-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.search-box {
+    width: 50vw;
+    height: 30px;
+    border: 1px solid #999;
+    border-radius: 3px;
+}
+
+.add-marker {
+    width: 25%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-marker span{
+    font-size: 15px;
+}
+
+
+/*The markers list*/
+
+.markers-list,
+.fsquare-items {
+    display: inline-block;
+    box-sizing: border-box;
+    padding-left: 10px;
+    list-style: none;
+}
+
+.fsquare-items {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.list-items {
+    padding-top: 10px;
+    max-width: 100%;
+    cursor: pointer;
+}
+
+
+/*The foursquare results list*/
+
+.fsquare-items li {
+    display: inline-block;
+    list-style-type: none;
+    background-color: #eee;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px 5px;
+    cursor: pointer;
+}
+
+
+/*The foursquare attribution*/
+
+.fsquare-attrib,
+.wiki-attrib {
+    font-size: 10px;
+    padding-right: 5px;
+    background-color: Azure;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/*The details from foursquare api*/
+
+.fsquare-details p {
+    font-size: 12px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.fsquare-details div {
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.fsquare-showmap {
+    border-width: 1px;
+    border-color: white;
+    border-radius: 5px;
+    height: 30px;
+    width: 70%;
+}
+
+.wiki-items {
+    padding-left: 10px;
+}
+
+.wiki-items li {
+    display: block;
+    list-style-type: none;
+    background-color: #eee;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px 5px;
+    cursor: pointer;
+}
+
+.wiki-links a:link {
+    color: #99ccff;
+}
+
+.wiki-links a:visited {
+    color: #0066cc;
+}
+
+.wiki-links a:hover {
+    color: #cce6ff;
+}
+
+.wiki-links a:active {
+    color: #66ffcc;
+}
+
+.marker-operations {
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 10px;
+}
+
+.marker-operations button {
+    height: 30px;
+    width: 45%;
+}
+
+#accordion div{
+    padding: 1em 0.5em;
+}
