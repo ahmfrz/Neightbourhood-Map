@@ -1,4 +1,3 @@
-var INFOWINDOW_CONTENT = '<div><h1 id="info-heading"></h1></hr></div><div id="pano"></div><div id="moreInfo-button"></div>';
 var date = new Date();
 
 var fSquare = {
@@ -69,8 +68,10 @@ function ViewModel(map) {
 
     // Create a new blank array for all the location markers.
     self.markers = ko.observableArray();
+    self.selectedMarker = ko.observableArray();
+    self.navData = {};
     self.locations = [];
-    self.largeInfoWindow = new google.maps.InfoWindow();
+    self.largeInfoBubble = new InfoBubble();
 
     // This function resets the boundaries
     self.resetBounds = function() {
@@ -97,6 +98,10 @@ function ViewModel(map) {
         self.resetBounds();
     };
 
+    self.showInfo = function() {
+        self.hideNavInfo();
+    }
+
     // TODO : Remove this method if not used
     // self.reverseGeocode = function(latLng){
     //     var geocodeService = new google.maps.Geocoder();
@@ -118,13 +123,27 @@ function ViewModel(map) {
         self.hideMenu();
         self.hideResults();
         self.hideNavInfo();
-        self.largeInfoWindow.close();
+        self.largeInfoBubble.close();
     };
 
     self.hideNavInfo = function() {
+        $('label[for="nav-trigger"]').removeClass('nav-menu-hide');
         $('#map').removeClass('resize-map');
         $('.nav-info p').empty();
         $('.nav-info').addClass('hide-nav-info');
+    };
+
+    // TODO : Remove this if not used
+    // self.toggleMarker = function(data, event) {
+    //     if ($(event.currentTarget).is(':checked')) {
+    //         data.setMap(map);
+    //     } else {
+    //         data.setMap(null);
+    //     }
+    // };
+
+    self.filterMarkers = function(marker){
+
     };
 
     // TODO : Remove this method if not used
@@ -135,13 +154,18 @@ function ViewModel(map) {
     //         map.fitBounds(bounds);
     //     }
 
-    self.showNavInfo = function(response) {
+    self.showNavInfo = function() {
+        $('label[for="nav-trigger"]').addClass('nav-menu-hide');
         $('#map').addClass('resize-map');
         $('.nav-info').removeClass('hide-nav-info');
         $nav_para = $('.nav-info p');
         $nav_para.empty();
-        $nav_para.append('<span><b>Total Distance:</b> ' + response.routes[0].legs[0].distance.text + '</span>');
-        $nav_para.append('</br><span><b>Total Duration:</b> ' + response.routes[0].legs[0].duration.text + '</span>');
+        if (self.navData.navInfo != undefined) {
+            $nav_para.append('<span><b>Total Distance:</b> ' + self.navData.navInfo.distance + '</span>');
+            $nav_para.append('</br><span><b>Total Duration:</b> ' + self.navData.navInfo.duration + '</span>');
+        } else {
+            $nav_para.append('<span>Total Markers [' + self.markers().length + ']');
+        }
     };
 
     self.navigate = function(origin, destination, mode) {
@@ -152,7 +176,13 @@ function ViewModel(map) {
             destination: destination,
             travelMode: google.maps.TravelMode[mode.toUpperCase()]
         }, function(response, status) {
-            self.showNavInfo(response);
+            self.navData = {
+                navInfo: {
+                    distance: response.routes[0].legs[0].distance.text,
+                    duration: response.routes[0].legs[0].duration.text
+                }
+            }
+            self.showNavInfo();
             if (status == google.maps.DirectionsStatus.OK) {
                 var directionsDisplay = new google.maps.DirectionsRenderer({
                     map: map,
@@ -166,6 +196,9 @@ function ViewModel(map) {
                     self.showMarkers();
                     self.showMap();
                     $('.cancel-nav').removeClass('cancel-visible');
+
+                    // Clear nav data object to reset info area
+                    self.navData.navInfo = undefined;
                 });
             } else {
                 window.alert('Directions request failed due to ' + status);
@@ -282,17 +315,23 @@ function ViewModel(map) {
     self.defaultIcon = self.makeMarkerIcon('0091ff');
     self.highlightedIcon = self.makeMarkerIcon('FFFF24');
 
-    self.populateInfoWindow = function(marker, infoWindow) {
-        // Clear the infowindow content to give apis
+    self.populateInfoBubble = function(marker, infoBubble) {
+        // Clear the infobubble content to give apis
         // time to load.
-        infoWindow.setContent('');
-        infoWindow.setContent(INFOWINDOW_CONTENT);
-        infoWindow.marker = marker;
+        infoBubble.setContent('');
+
+        // Create content for infobubble
+        var infoContent = document.createElement('div');
+        $(infoContent).append('<h1 id="info-heading"></h1>');
+        $(infoContent).append('<div id="pano"></div>');
+        $(infoContent).append('<div id="moreInfo-button"></div>');
+        infoBubble.setContent(infoContent);
+        infoBubble.marker = marker;
 
         // Make sure the marker property is
-        // cleared if the infowindow is closed.
-        infoWindow.addListener('click', function() {
-            infoWindow.marker = null;
+        // cleared if the infobubble is closed.
+        infoBubble.addListener('click', function() {
+            infoBubble.marker = null;
         });
 
         var streetView = new google.maps.StreetViewService();
@@ -306,7 +345,7 @@ function ViewModel(map) {
                 var nearStreetViewLocation = data.location.latLng;
                 var heading = google.maps.geometry.spherical.computeHeading(
                     nearStreetViewLocation, marker.position);
-                $('#info-heading').html(marker.title);
+                $(infoContent.children[0]).html(marker.title);
                 var panoOptions = {
                     position: nearStreetViewLocation,
                     pov: {
@@ -316,10 +355,10 @@ function ViewModel(map) {
                 };
 
                 var panorama = new google.maps.StreetViewPanorama(
-                    $('#pano')[0], panoOptions);
+                    $(infoContent.children[1])[0], panoOptions);
             } else {
-                $('#info-heading').html(marker.title);
-                $('#pano').html("No StreetView found");
+                $(infoContent.children[0]).html(marker.title);
+                $(infoContent.children[1]).html("No StreetView found");
             }
         };
 
@@ -328,10 +367,10 @@ function ViewModel(map) {
         streetView.getPanoramaByLocation(marker.position,
             radius, getStreetView);
 
-        // Open the infowindow on the correct marker.
-        infoWindow.open(map, marker);
-        $('#moreInfo-button').append('<button class="moreInfo-button">More Info</button>');
-        $('.moreInfo-button').on('click', function(event) {
+        // Open the infobubble on the correct marker.
+        infoBubble.open(map, marker);
+        $(infoContent.children[2]).append('<button class="moreInfo-button">More Info</button>');
+        $(infoContent.children[2]).on('click', function(event) {
             self.showResults(marker);
             event.stopPropagation();
         });
@@ -385,6 +424,7 @@ function ViewModel(map) {
         };
 
         place.marker = new google.maps.Marker(markerOptions);
+        self.selectedMarker.push(place.marker);
         self.markers.push(place.marker);
 
         // Two event listeners - one for mouseover, one for mouseout,
@@ -397,10 +437,10 @@ function ViewModel(map) {
         });
 
         // Create an onclick event to open the large
-        // infowindow at each marker.
+        // infobubble at each marker.
         place.marker.addListener('click', function() {
             self.animateMarkerWithTimeout(this, 2000, google.maps.Animation.BOUNCE);
-            self.populateInfoWindow(this, self.largeInfoWindow);
+            self.populateInfoBubble(this, self.largeInfoBubble);
         });
     };
 
@@ -410,7 +450,7 @@ function ViewModel(map) {
         $('#nav-trigger').prop('checked', false);
 
         // Close info window if opened
-        self.largeInfoWindow.close();
+        self.largeInfoBubble.close();
     }
 
     // This function initializes map when page is loaded
@@ -429,9 +469,11 @@ function ViewModel(map) {
 
         autoComplete.bindTo('Bounds', map);
 
-        autoComplete.addListener('place_changed', function() {
+        // Add marker to the map when button is clicked
+        self.addMarker = function() {
             var geocoder = new google.maps.Geocoder();
-            var place = this.getPlace();
+            var place = autoComplete.getPlace();
+
             // Make sure the address isn't blank.
             if (place == '') {
                 window.alert('You must enter an area, or address.');
@@ -456,7 +498,7 @@ function ViewModel(map) {
                     }
                 });
             }
-        });
+        };
 
         // Set map boundaries to show all markers
         self.resetBounds();

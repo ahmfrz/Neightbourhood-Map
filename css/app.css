@@ -1,6 +1,5 @@
 * {
     border: 1px solid blue;
-    box-sizing: border-box;
 }
 
 html,
@@ -9,10 +8,11 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    box-sizing: border-box;
 }
 
-button{
-        border-width: 1px;
+button {
+    border-width: 1px;
     border-color: gray;
     background-color: white;
     border-radius: 5px;
@@ -34,22 +34,26 @@ button{
     position: relative;
     top: 0px;
     left: 0px;
-    bottom: 100%;
     z-index: 1;
     transition: height 0.2s;
 }
 
 .map-size {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 93vh;
 }
 
 .resize-map {
-    height: 70%;
+    height: 70vh;
 }
 
 .nav-info {
-    height: 30%;
+    width: 100vw;
+    height: 30vh;
+    position: fixed;
+    z-index: 2;
+    transition: height 0.2s;
+    cursor: pointer;
 }
 
 .nav-info .nav-info-icon {
@@ -61,20 +65,9 @@ button{
     margin-top: 0px;
 }
 
-.nav-info-buttons {
-    display: flex;
-    justify-content: center;
-}
-
-.nav-info-buttons button {
-    width: 40%;
-    border-color: gray;
-    border-radius: 5px;
-    background-color: white;
-}
-
 .hide-nav-info {
-    height: 0%;
+    bottom: -4.5vh;
+    height: 10.5vh;
 }
 
 
@@ -131,12 +124,18 @@ button{
 
 label[for="nav-trigger"] {
     position: fixed;
-    bottom: 15px;
-    left: 15px;
-    z-index: 2;
+    bottom: 5px;
+    z-index: 3;
     cursor: pointer;
 }
 
+.nav-menu{
+    left: 5px;
+}
+
+.nav-menu-hide{
+    left: -50vw;
+}
 
 /*Menu open*/
 
@@ -163,9 +162,13 @@ label[for="nav-trigger"] {
 
 /*Search area*/
 
-.search-container {
+.search-container, .filter-container {
     display: flex;
     justify-content: space-around;
+}
+
+.filter-container{
+    padding-top: 10px;
 }
 
 .search-box {
@@ -175,7 +178,7 @@ label[for="nav-trigger"] {
     border-radius: 3px;
 }
 
-.add-marker {
+.search-marker {
     width: 25%;
     display: flex;
     flex-wrap: nowrap;
@@ -183,7 +186,7 @@ label[for="nav-trigger"] {
     align-items: center;
 }
 
-.add-marker span{
+.search-marker span {
     font-size: 15px;
 }
 
@@ -198,13 +201,20 @@ label[for="nav-trigger"] {
     list-style: none;
 }
 
+.markers-list span{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .fsquare-items {
     margin-top: 0px;
     margin-bottom: 0px;
 }
 
 .list-items {
-    padding-top: 10px;
     max-width: 100%;
     cursor: pointer;
 }
@@ -298,6 +308,6 @@ label[for="nav-trigger"] {
     width: 45%;
 }
 
-#accordion div{
+#accordion div {
     padding: 1em 0.5em;
 }

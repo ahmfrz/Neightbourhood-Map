@@ -9,22 +9,16 @@
     <meta name="description" content="Neighbourhood map with google maps">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link type="text/css" rel="stylesheet" href="css/app.css">
-    <link type="text/css" rel="stylesheet" href="css/multiselect.min.css">
     <link rel="stylesheet" href="css/jquery-ui.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
     <div id="map" class="map-size" data-bind="click: showMap"></div>
-    <div class="nav-info hide-nav-info"><span class="material-icons nav-info-icon">info</span>
+    <div class="nav-info hide-nav-info" data-bind="click: showNavInfo"><span class="material-icons nav-info-icon">info</span>
         <p></p>
-        <div class="nav-info-buttons">
-            <button data-bind="click: showMap"><i class="material-icons">done</i></button>
-            <button id="navigation-cancel"><i class="material-icons">cancel</i></button>
-        </div>
     </div>
     <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-    <label for="nav-trigger"><span class="material-icons">menu</span></label>
+    <label for="nav-trigger" class="nav-menu"><span class="material-icons">menu</span></label>
     <div class="menu-container">
         <h2>Places to visit</h2>
         <div class="marker-operations">
@@ -33,18 +27,20 @@
         </div>
         <div class="search-container">
             <input type="search" class="search-box" placeholder="Search Location" autofocus>
-            <button class="add-marker"><span>Add</span><i class="material-icons">add</i></button>
+            <button class="search-marker" data-bind="click: addMarker"><span>Add</span><i class="material-icons">add</i></button>
         </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div>
-                    <select multiple="multiple" class="form-control" data-bind="options: markers, optionsText: 'title', multiselect: {includeSelectAllOption: true}"></select>
-                </div>
-            </div>
+        <div class="filter-container">
+            <input type="search" class="search-box" placeholder="Filter Markers" list="locations">
+            <datalist id="locations" data-bind="foreach: markers">
+            <option data-bind="text: title"></option>
+            </datalist>
+            <button class="search-marker" data-bind="click: filterMarkers"><span>Filter</span><i class="material-icons">filter_list</i></button>
         </div>
         <div>
             <ul class="markers-list" data-bind="foreach: markers">
-                <li class="list-items" data-bind="text: title, click: $parent.showMarker"></li>
+            <span>
+                <input type="checkbox" value="" data-bind="checkedValue: $index, checked:$root.selectedMarkers, event: {change: $root.toggleMarker}"><li class="list-items" data-bind="text: title, click: $parent.showMarker"></li>
+                </span>
             </ul>
         </div>
     </div>
@@ -77,9 +73,8 @@
     </div>
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/knockout-3.4.2.js"></script>
-    <script type="text/javascript" src="js/multiselect.js"></script>
+    <script type="text/javascript" src="js/infobubble.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
     <script asycn defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places&key=AIzaSyDwg8MN8CGan9GCw1pIvGN21bD_BSqH_5M&v=3&callback=initMap">
     </script>
