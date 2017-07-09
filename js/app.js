@@ -35,25 +35,48 @@ var wiki = {
 // Locations model
 var locations = [{
     name: 'Norita Building',
-    location: { lat: 19.1179, lng: 72.9080 }
+    location: { lat: 19.1179, lng: 72.9080 },
+    type: 'Building'
 }, {
     name: 'Viviana Mall',
-    location: { lat: 19.2087, lng: 72.9713 }
+    location: { lat: 19.2087, lng: 72.9713 },
+    type: 'Mall'
 }, {
     name: 'Inorbit Mall',
-    location: { lat: 19.0657, lng: 73.0012 }
+    location: { lat: 19.0657, lng: 73.0012 },
+    type: 'Mall'
 }, {
     name: 'Hiranandani Garden',
-    location: { lat: 19.1154, lng: 72.9091 }
+    location: { lat: 19.1154, lng: 72.9091 },
+    type: 'Garden'
 }, {
     name: 'R-City Mall',
-    location: { lat: 19.0997, lng: 72.9164 }
+    location: { lat: 19.0997, lng: 72.9164 },
+    type: 'Mall'
 }];
+
+var typeMap = {
+    'building': 'home',
+    'mall': 'shopping_cart',
+    'garden': 'all_out',
+    'cafe': 'local_cafe',
+    'hotel': 'hotel',
+    'library': 'local_library',
+    'store': 'store',
+    'theater': 'theaters',
+    'city': 'map',
+    'restaurant': 'restaurant',
+    'establishment': 'home',
+    'point_of_interest': 'explore',
+    'default': 'view_quilt'
+}
 
 function Place(data) {
     this.name = data.name;
     this.location = data.location;
+    this.type = typeMap[data.type.toLowerCase()] == undefined ? typeMap["default"] : typeMap[data.type.toLowerCase()];
     this.marker = null;
+    this.selected = ko.observable(true);
 };
 
 $('#nav-trigger').on('change', function() {
@@ -68,31 +91,85 @@ function ViewModel(map) {
 
     // Create a new blank array for all the location markers.
     self.markers = ko.observableArray();
-    self.selectedMarker = ko.observableArray();
+    self.markersList = ko.observableArray();
+    self.filteredList = ko.observableArray();
     self.navData = {};
     self.locations = [];
     self.largeInfoBubble = new InfoBubble();
+    self.typesList = ko.computed(function() {
+        var distinct_types = [];
+        self.markersList().forEach(function(place) {
+            if (distinct_types.indexOf(place.type) < 0) {
+                distinct_types.push(place.type);
+            }
+        });
+
+        return distinct_types;
+    });
+
+    self.allSelected = ko.computed(function() {
+        var result = true;
+        self.markersList().forEach(function(place) {
+            if (place.selected() === false) {
+                result = false;
+                place.marker.setMap(null);
+            } else {
+                place.marker.setMap(map);
+            }
+        });
+
+        return result;
+    });
+
+    self.selectAll = function() {
+        var all = self.allSelected();
+        ko.utils.arrayForEach(self.markersList(), function(place) {
+            place.selected(!all);
+        });
+        return true;
+    };
+
+    self.updateMap = function(place, mapValue, selectedValue) {
+        place.marker.setMap(mapValue);
+        place.selected(selectedValue);
+    }
+
+    self.filterbyCategory = function(data) {
+        var boundaries = [];
+        self.markersList().forEach(function(place) {
+            if (place.type == data) {
+                self.updateMap(place, map, true);
+                boundaries.push(place.marker.position);
+            } else {
+                self.updateMap(place, null, false);
+            }
+        });
+
+        self.setBounds(boundaries);
+        self.showMap();
+    }
 
     // This function resets the boundaries
     self.resetBounds = function() {
         // Set boundaries to show all markers
         var bounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < self.markers().length; i++) {
-            bounds.extend(self.markers()[i].position);
+        for (var i = 0; i < self.markersList().length; i++) {
+            bounds.extend(self.markersList()[i].marker.position);
         }
 
         map.fitBounds(bounds);
     };
 
     self.hideMarkers = function() {
-        self.markers().forEach(function(marker) {
-            marker.setMap(null);
+        self.markersList().forEach(function(place) {
+            self.updateMap(place, null, false);
         });
     }
 
     self.showMarkers = function() {
-        self.markers().forEach(function(marker) {
-            marker.setMap(map);
+        self.filteredList.removeAll();
+        self.markersList().forEach(function(place) {
+            self.updateMap(place, map, true)
         });
 
         self.resetBounds();
@@ -100,6 +177,12 @@ function ViewModel(map) {
 
     self.showInfo = function() {
         self.hideNavInfo();
+    }
+
+    self.deleteMarker = function(place) {
+        self.updateMap(place, null, false);
+        self.removeFilter(place.marker.title);
+        self.markersList.remove(place);
     }
 
     // TODO : Remove this method if not used
@@ -133,26 +216,77 @@ function ViewModel(map) {
         $('.nav-info').addClass('hide-nav-info');
     };
 
-    // TODO : Remove this if not used
-    // self.toggleMarker = function(data, event) {
-    //     if ($(event.currentTarget).is(':checked')) {
-    //         data.setMap(map);
-    //     } else {
-    //         data.setMap(null);
-    //     }
-    // };
+    self.toggleMarker = function(data) {
+        if (data.selected()) {
+            self.updateMap(data, null, false);
 
-    self.filterMarkers = function(marker){
+        } else {
+            self.updateMap(data, map, true);
+        }
 
+        return true;
     };
 
-    // TODO : Remove this method if not used
-    //     self.setBounds = function(from, to){
-    //         var bounds = new google.maps.LatLngBounds();
-    //         bounds.extend(from);
-    //         bounds.extend(to);
-    //         map.fitBounds(bounds);
+    // TODO : REMOVE THIS IF NOT USED
+    // $filterValue = $('.filter-container .search-box');
+    // $filterValue.bind('input', function() {
+    //     var title = $filterValue[0].value;
+    //     if (self.filteredList().indexOf(title) < 0 && self.checkMarkerExists(title) == false) {
+    //         self.filteredList.push(title);
+    //     $filterValue.val('');
     //     }
+    // });
+
+    self.addFilter = function() {
+        $filterValue = $('.filter-container .search-box');
+        var title = $filterValue[0].value;
+        if (self.filteredList().indexOf(title) < 0 && self.checkMarkerExists(title) == false) {
+            self.filteredList.push(title);
+            $filterValue.val('');
+        }
+    };
+
+    self.removeFilter = function(data) {
+        self.filteredList.remove(data);
+    }
+
+    self.showFilteredMarkers = function() {
+        var boundaries = [];
+
+        // Show each filtered marker on map
+        self.filteredList().forEach(function(title) {
+            for (var index = 0; index < self.markersList().length; index++) {
+                if (self.markersList()[index].marker.title == title) {
+                    self.updateMap(self.markersList()[index], map, true);
+                    boundaries.push(self.markersList()[index].marker.position);
+                }
+            };
+        });
+
+        self.setBounds(boundaries);
+    };
+
+    self.filterMarkers = function(marker) {
+        // Hide all markers
+        self.hideMarkers();
+
+        // Show filtered markers
+        self.showFilteredMarkers();
+
+        // Show the map
+        self.showMap();
+    };
+
+    self.setBounds = function(boundaries) {
+        if (boundaries.length > 0) {
+            var bounds = new google.maps.LatLngBounds();
+            for (var index = 0; index < boundaries.length; index++) {
+                bounds.extend(boundaries[index]);
+            }
+
+            map.fitBounds(bounds);
+        }
+    }
 
     self.showNavInfo = function() {
         $('label[for="nav-trigger"]').addClass('nav-menu-hide');
@@ -164,7 +298,7 @@ function ViewModel(map) {
             $nav_para.append('<span><b>Total Distance:</b> ' + self.navData.navInfo.distance + '</span>');
             $nav_para.append('</br><span><b>Total Duration:</b> ' + self.navData.navInfo.duration + '</span>');
         } else {
-            $nav_para.append('<span>Total Markers [' + self.markers().length + ']');
+            $nav_para.append('<span>Total Markers [' + self.markersList().length + ']');
         }
     };
 
@@ -239,7 +373,7 @@ function ViewModel(map) {
                                 $('.fsquare-details div').append('<button class="fsquare-showmap">Navigate</button>');
                                 $('.fsquare-showmap').on('click', function() {
                                     var location = { lat: itemCopy.venue.location.lat, lng: itemCopy.venue.location.lng };
-                                    self.createMarker(new Place({ name: name, location: location }));
+                                    self.createMarker(new Place({ name: name, location: location, type: itemCopy.venue.categories[0].name }));
                                     self.showMap();
                                     var current = { lat: currentMarker.position.lat(), lng: currentMarker.position.lng() };
                                     self.navigate(current, location, 'driving');
@@ -319,12 +453,12 @@ function ViewModel(map) {
         // Clear the infobubble content to give apis
         // time to load.
         infoBubble.setContent('');
-
+        console.log(marker);
         // Create content for infobubble
         var infoContent = document.createElement('div');
         $(infoContent).append('<h1 id="info-heading"></h1>');
         $(infoContent).append('<div id="pano"></div>');
-        $(infoContent).append('<div id="moreInfo-button"></div>');
+        $(infoContent).append('<div id="moreInfo"></div>');
         infoBubble.setContent(infoContent);
         infoBubble.marker = marker;
 
@@ -391,18 +525,18 @@ function ViewModel(map) {
         }, timeout);
     };
 
-    self.showMarker = function(marker) {
-        marker.setMap(map);
+    self.showMarker = function(data) {
+        data.marker.setMap(map);
         self.hideMenu();
-        self.animateMarkerWithTimeout(marker, 3000, google.maps.Animation.BOUNCE);
-        map.setCenter(marker.position);
+        self.animateMarkerWithTimeout(data.marker, 3000, google.maps.Animation.BOUNCE);
+        map.setCenter(data.marker.position);
         map.setZoom(17);
     }
 
     // Check if the marker already exists on the map
     self.checkMarkerExists = function(title) {
-        for (var i = 0; i < self.markers().length; i++) {
-            if (self.markers()[i].title === title) {
+        for (var i = 0; i < self.markersList().length; i++) {
+            if (self.markersList()[i].marker.title === title) {
                 return false;
             }
         }
@@ -424,8 +558,7 @@ function ViewModel(map) {
         };
 
         place.marker = new google.maps.Marker(markerOptions);
-        self.selectedMarker.push(place.marker);
-        self.markers.push(place.marker);
+        self.markersList.push(place);
 
         // Two event listeners - one for mouseover, one for mouseout,
         // to change the colors back and forth.
@@ -485,9 +618,11 @@ function ViewModel(map) {
                 }, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         var location = results[0].geometry.location;
+                        console.log(place);
                         self.createMarker(new Place({
                             name: place.address_components[0].short_name,
                             location: location,
+                            type: place.address_components[0].types[place.address_components[0].types.length - 1]
                         }));
 
                         self.hideMenu();

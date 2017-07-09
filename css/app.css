@@ -12,7 +12,10 @@ body {
 }
 
 button {
-    border-width: 1px;
+    font-family: 'Space Mono', monospace;
+    font-weight: bold;
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
+    border-width: 2px;
     border-color: gray;
     background-color: white;
     border-radius: 5px;
@@ -47,12 +50,23 @@ button {
     height: 70vh;
 }
 
+#info-heading{
+    font-weight: bold;
+    font-family: 'Space Mono', monospace;
+}
+
+#moreInfo{
+    display: flex;
+    justify-content: center;
+}
+
 .nav-info {
     width: 100vw;
     height: 30vh;
     position: fixed;
     z-index: 2;
     transition: height 0.2s;
+    font-family: 'Space Mono', monospace;
     cursor: pointer;
 }
 
@@ -63,6 +77,8 @@ button {
 
 .nav-info p {
     margin-top: 0px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .hide-nav-info {
@@ -95,6 +111,20 @@ button {
     z-index: 2;
 }
 
+.menu-container h2,
+.results-container h2{
+    font-family: 'Bungee Shade', cursive;
+    font-size: 25px;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.results-container h2{
+    font-size: 20px;
+}
+
 .results-container {
     width: 80vw;
     height: 100%;
@@ -102,7 +132,8 @@ button {
     background: white;
     overflow: hidden;
     top: 0px;
-    right: -80vw;
+    right: -85vw;
+    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
     z-index: 2;
 }
 
@@ -162,9 +193,15 @@ label[for="nav-trigger"] {
 
 /*Search area*/
 
-.search-container, .filter-container {
+.search-container,
+.filter-container {
     display: flex;
     justify-content: space-around;
+}
+
+.search-container input,
+.filter-container input{
+    font-family: 'Space Mono', monospace;
 }
 
 .filter-container{
@@ -179,7 +216,7 @@ label[for="nav-trigger"] {
 }
 
 .search-marker {
-    width: 25%;
+    width: 32%;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
@@ -194,6 +231,7 @@ label[for="nav-trigger"] {
 /*The markers list*/
 
 .markers-list,
+.types-list,
 .fsquare-items {
     display: inline-block;
     box-sizing: border-box;
@@ -201,12 +239,49 @@ label[for="nav-trigger"] {
     list-style: none;
 }
 
-.markers-list span{
+.types-list{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.types-list li{
+    display: inline;
+}
+
+.markers-list{
+    margin-top: 0px;
+}
+
+.markers-list {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     padding-top: 5px;
-    padding-bottom: 5px;
+    width: 100%;
+}
+
+.marker-check{
+    display: flex;
+    align-items: center;
+    padding-top: 5px;
+}
+
+.listings{
+    font-family: 'Space Mono', monospace;
+}
+
+.markers-container{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-all{
+    display: inline-block;
+    padding-top: 10px;
+    padding-left: 10px;
 }
 
 .fsquare-items {
@@ -223,9 +298,10 @@ label[for="nav-trigger"] {
 /*The foursquare results list*/
 
 .fsquare-items li {
+    font-family: monospace;
     display: inline-block;
     list-style-type: none;
-    background-color: #eee;
+    background-color: rgba(51, 131, 211, 0.27);
     border: 1px solid white;
     border-radius: 5px;
     padding: 5px 5px;
@@ -260,7 +336,6 @@ label[for="nav-trigger"] {
 }
 
 .fsquare-showmap {
-    border-width: 1px;
     border-color: white;
     border-radius: 5px;
     height: 30px;
@@ -274,10 +349,11 @@ label[for="nav-trigger"] {
 .wiki-items li {
     display: block;
     list-style-type: none;
-    background-color: #eee;
     border: 1px solid white;
     border-radius: 5px;
     padding: 5px 5px;
+    background-color: rgba(51, 131, 211, 0.27);
+    font-family: 'Space Mono', monospace;
     cursor: pointer;
 }
 
@@ -310,4 +386,26 @@ label[for="nav-trigger"] {
 
 #accordion div {
     padding: 1em 0.5em;
+}
+
+.filter-items{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-left: 5px;
+    padding-top: 5px;
+}
+
+.filter-items span{
+    background-color: gray;
+    padding: 2px 2px 2px 2px;
+    margin: 2px 2px 2px 2px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+}
+
+.filter-items span i{
+    font-size: 15px;
 }
