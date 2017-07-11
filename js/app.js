@@ -422,7 +422,13 @@ function ViewModel(map) {
 
     self.showResults = function(currentMarker) {
         self.hideMenu();
-        $('#accordion').accordion();
+        $('#accordion').accordion({
+            autoHeight: true,
+            heightStyle: "fill",
+            collapsible: true,
+            active: false
+        });
+
         $('.results-container').addClass('show-results');
 
         // Get five top picks from foursquare
@@ -453,7 +459,7 @@ function ViewModel(map) {
         // Clear the infobubble content to give apis
         // time to load.
         infoBubble.setContent('');
-        console.log(marker);
+
         // Create content for infobubble
         var infoContent = document.createElement('div');
         $(infoContent).append('<h1 id="info-heading"></h1>');
@@ -618,7 +624,6 @@ function ViewModel(map) {
                 }, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         var location = results[0].geometry.location;
-                        console.log(place);
                         self.createMarker(new Place({
                             name: place.address_components[0].short_name,
                             location: location,
