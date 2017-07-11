@@ -1,5 +1,5 @@
 * {
-    border: 1px solid blue;
+    /*border: 1px solid blue;*/
 }
 
 html,
@@ -50,12 +50,12 @@ button {
     height: 70vh;
 }
 
-#info-heading{
+#info-heading {
     font-weight: bold;
     font-family: 'Space Mono', monospace;
 }
 
-#moreInfo{
+#moreInfo {
     display: flex;
     justify-content: center;
 }
@@ -95,6 +95,8 @@ button {
     border-radius: 10px;
     max-width: 100%;
     max-height: 100%;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 
@@ -105,23 +107,23 @@ button {
     height: 100%;
     position: fixed;
     background: white;
-    overflow: hidden;
+    overflow: auto;
     top: 0px;
     left: -80vw;
     z-index: 2;
 }
 
 .menu-container h2,
-.results-container h2{
+.results-container h2 {
     font-family: 'Bungee Shade', cursive;
-    font-size: 25px;
+    font-size: 23px;
     display: flex;
     justify-content: center;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-.results-container h2{
+.results-container h2 {
     font-size: 20px;
 }
 
@@ -139,6 +141,14 @@ button {
 
 .show-results {
     right: 0vw;
+}
+
+
+/*Third party results trigger*/
+
+.moreInfo-button {
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 
@@ -160,13 +170,14 @@ label[for="nav-trigger"] {
     cursor: pointer;
 }
 
-.nav-menu{
+.nav-menu {
     left: 5px;
 }
 
-.nav-menu-hide{
+.nav-menu-hide {
     left: -50vw;
 }
+
 
 /*Menu open*/
 
@@ -197,14 +208,15 @@ label[for="nav-trigger"] {
 .filter-container {
     display: flex;
     justify-content: space-around;
+    align-items: center;
 }
 
 .search-container input,
-.filter-container input{
+.filter-container input {
     font-family: 'Space Mono', monospace;
 }
 
-.filter-container{
+.filter-container {
     padding-top: 10px;
 }
 
@@ -216,7 +228,7 @@ label[for="nav-trigger"] {
 }
 
 .search-marker {
-    width: 32%;
+    width: 35%;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
@@ -239,17 +251,17 @@ label[for="nav-trigger"] {
     list-style: none;
 }
 
-.types-list{
+.types-list {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
 }
 
-.types-list li{
+.types-list li {
     display: inline;
 }
 
-.markers-list{
+.markers-list {
     margin-top: 0px;
 }
 
@@ -261,32 +273,27 @@ label[for="nav-trigger"] {
     width: 100%;
 }
 
-.marker-check{
+.marker-check {
     display: flex;
     align-items: center;
     padding-top: 5px;
 }
 
-.listings{
+.listings {
     font-family: 'Space Mono', monospace;
 }
 
-.markers-container{
+.markers-container {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.select-all{
+.select-all {
     display: inline-block;
     padding-top: 10px;
     padding-left: 10px;
-}
-
-.fsquare-items {
-    margin-top: 0px;
-    margin-bottom: 0px;
 }
 
 .list-items {
@@ -296,6 +303,11 @@ label[for="nav-trigger"] {
 
 
 /*The foursquare results list*/
+
+.fsquare-items {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
 
 .fsquare-items li {
     font-family: monospace;
@@ -342,6 +354,7 @@ label[for="nav-trigger"] {
     width: 70%;
 }
 
+/*The wikipedia items*/
 .wiki-items {
     padding-left: 10px;
 }
@@ -388,7 +401,8 @@ label[for="nav-trigger"] {
     padding: 1em 0.5em;
 }
 
-.filter-items{
+/*The filter options*/
+.filter-items {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -396,8 +410,8 @@ label[for="nav-trigger"] {
     padding-top: 5px;
 }
 
-.filter-items span{
-    background-color: gray;
+.filter-items span {
+    background-color: #e1ecf4;
     padding: 2px 2px 2px 2px;
     margin: 2px 2px 2px 2px;
     display: inline-flex;
@@ -406,6 +420,232 @@ label[for="nav-trigger"] {
     font-size: 15px;
 }
 
-.filter-items span i{
+.filter-items span i {
     font-size: 15px;
+}
+
+
+/*Small devices*/
+
+@media screen and (min-width: 400px) {
+    .search-marker {
+        width: 32%;
+    }
+    .menu-container h2 {
+        font-size: 25px;
+    }
+    .fsquare-details p {
+        font-size: 15px;
+    }
+}
+
+
+/*Medium size devices*/
+
+@media screen and (min-width: 768px) {
+    /*The info area*/
+    .hide-nav-info {
+        bottom: -3.5vh;
+        height: 8vh;
+    }
+    .nav-info-icon {
+        font-size: 40px;
+    }
+    .nav-info p {
+        font-size: 30px;
+        padding-left: 45px;
+    }
+    .map-size {
+        height: 95.5vh;
+    }
+    .resize-map {
+        height: 70vh;
+    }
+    /*The hamburger icon*/
+    .nav-menu span {
+        font-size: 40px;
+    }
+    label[for="nav-trigger"] {
+        bottom: 3px;
+    }
+    .menu-container h2 {
+        font-size: 50px;
+    }
+    /*The results container*/
+    .results-container h2 {
+        font-size: 40px;
+    }
+    #accordion h3 {
+        font-size: 35px;
+    }
+    /*Foursquare results*/
+    .fsquare-items {
+        font-size: 30px;
+    }
+    .fsquare-details p {
+        font-size: 25px;
+    }
+    .fsquare-showmap {
+        height: 70px;
+        font-size: 35px;
+    }
+    /*Wikipedia items*/
+    .wiki-links {
+        font-size: 35px;
+    }
+    /*The menu*/
+    .marker-operations button {
+        height: 45px;
+        font-size: 25px;
+    }
+    .search-container,
+    .filter-container {
+        height: 50px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .search-container input,
+    .filter-container input {
+        height: 45px;
+        font-size: 25px;
+    }
+    .search-marker {
+        height: 45px;
+        width: 25%;
+    }
+    .search-marker span {
+        font-size: 25px;
+    }
+    .types-list i {
+        font-size: 45px;
+    }
+    .listings {
+        font-size: 45px;
+    }
+    .markers-container i {
+        font-size: 45px;
+    }
+    .select-all input,
+    .marker-check input {
+        width: 30px;
+        height: 30px;
+    }
+    /*The info bubble*/
+    #info-heading {
+        font-size: 35px;
+    }
+
+    .moreInfo-button {
+        height: 52px;
+        font-size: 28px;
+    }
+
+    .filter-items span{
+        font-size: 30px;
+    }
+
+    .filter-items span i{
+        font-size: 40px;
+    }
+}
+
+/*Large screen size devices*/
+
+@media screen and (min-width: 1024px) {
+    /*The info area*/
+    .hide-nav-info {
+        bottom: -3.5vh;
+        height: 7.5vh;
+    }
+    .nav-info-icon {
+        font-size: 50px;
+    }
+    .nav-info p {
+        font-size: 45px;
+        padding-left: 45px;
+    }
+    /*The hamburger icon*/
+    .nav-menu span {
+        font-size: 50px;
+    }
+    .menu-container h2 {
+        font-size: 65px;
+    }
+    /*The results container*/
+    .results-container h2 {
+        font-size: 50px;
+    }
+    #accordion h3 {
+        font-size: 45px;
+    }
+    /*Foursquare results*/
+    .fsquare-items {
+        font-size: 40px;
+    }
+    .fsquare-details p {
+        font-size: 35px;
+    }
+    .fsquare-showmap {
+        height: 90px;
+        font-size: 45px;
+    }
+    /*Wikipedia items*/
+    .wiki-links {
+        font-size: 45px;
+    }
+    /*The menu*/
+    .marker-operations button {
+        height: 80px;
+        font-size: 40px;
+    }
+    .search-container,
+    .filter-container {
+        height: 80px;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .search-container input,
+    .filter-container input {
+        height: 65px;
+        font-size: 32px;
+    }
+    .search-marker {
+        height: 65px;
+        width: 25%;
+    }
+    .search-marker span {
+        font-size: 32px;
+    }
+    .search-marker i {
+        font-size: 50px;
+    }
+    .types-list i {
+        font-size: 70px;
+    }
+    .listings {
+        font-size: 50px;
+    }
+    .markers-container i {
+        font-size: 60px;
+    }
+    .select-all input,
+    .marker-check input {
+        width: 40px;
+        height: 40px;
+    }
+    /*The info bubble*/
+    #info-heading {
+        font-size: 50px;
+    }
+    .moreInfo-button {
+        height: 70px;
+        font-size: 35px;
+    }
+    /*The selected filters*/
+    .filter-items span{
+        font-size: 40px;
+    }
+    .filter-items span i{
+        font-size: 55px;
+    }
 }
