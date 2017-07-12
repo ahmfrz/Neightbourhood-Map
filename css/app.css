@@ -27,6 +27,7 @@ button {
     right: 15px;
     top: 35px;
     z-index: 2;
+    cursor: pointer;
 }
 
 .cancel-visible {
@@ -36,12 +37,12 @@ button {
 #map {
     position: relative;
     top: 0px;
-    left: 0px;
     z-index: 1;
     transition: height 0.2s;
 }
 
 .map-size {
+    left: 0px;
     width: 100vw;
     height: 93vh;
 }
@@ -125,6 +126,7 @@ button {
 
 .results-container h2 {
     font-size: 20px;
+    padding-left: 5px;
 }
 
 .results-container {
@@ -261,6 +263,10 @@ label[for="nav-trigger"] {
     display: inline;
 }
 
+.types-list i {
+    cursor: pointer;
+}
+
 .markers-list {
     margin-top: 0px;
 }
@@ -354,7 +360,9 @@ label[for="nav-trigger"] {
     width: 70%;
 }
 
+
 /*The wikipedia items*/
+
 .wiki-items {
     padding-left: 10px;
 }
@@ -401,7 +409,9 @@ label[for="nav-trigger"] {
     padding: 1em 0.5em;
 }
 
+
 /*The filter options*/
+
 .filter-items {
     display: flex;
     flex-wrap: wrap;
@@ -422,6 +432,11 @@ label[for="nav-trigger"] {
 
 .filter-items span i {
     font-size: 15px;
+    cursor: pointer;
+}
+
+.markers-container i {
+    cursor: pointer;
 }
 
 
@@ -489,6 +504,13 @@ label[for="nav-trigger"] {
         height: 70px;
         font-size: 35px;
     }
+    .fsquare-attrib,
+    .wiki-attrib {
+        font-size: 25px;
+    }
+    .cancel-nav span {
+        font-size: 42px;
+    }
     /*Wikipedia items*/
     .wiki-links {
         font-size: 35px;
@@ -534,24 +556,220 @@ label[for="nav-trigger"] {
     #info-heading {
         font-size: 35px;
     }
-
     .moreInfo-button {
         height: 52px;
         font-size: 28px;
     }
-
-    .filter-items span{
+    .filter-items span {
         font-size: 30px;
     }
-
-    .filter-items span i{
+    .filter-items span i {
         font-size: 40px;
     }
 }
 
+@media screen and (min-width: 768px) and (max-height: 980px) {
+    .nav-menu span {
+        font-size: 32px;
+    }
+    .nav-info-icon {
+        font-size: 32px;
+    }
+    label[for="nav-trigger"] {
+        bottom: -5px;
+    }
+}
+
+
+/*For wide screen devices*/
+
+@media screen and (min-width: 820px) and (max-height: 1359px) {
+    /*Nav info*/
+    .nav-info {
+        width: 40vw;
+        left: 0px;
+        bottom: 0vh;
+        background-color: white;
+        z-index: 4;
+    }
+    .nav-info-icon {
+        font-size: 25px;
+    }
+    .hide-nav-info {
+        height: 4vh;
+    }
+    .nav-info p {
+        font-size: 15px;
+    }
+    .map-size {
+        left: 40vw;
+        width: 60vw;
+    }
+    .map-size,
+    .resize-map {
+        height: 100vh;
+    }
+    .hide-nav-info {
+        height: 4.5vh;
+    }
+    /*Hide the hamburger menu*/
+    label.nav-menu {
+        visibility: hidden;
+    }
+    /*The Menu*/
+    .menu-container {
+        width: 40vw;
+        left: 0px;
+    }
+    .menu-container h2,
+    .results-container h2 {
+        font-size: 22px;
+    }
+    .marker-operations button {
+        font-size: 15px;
+        height: 30px;
+    }
+    .marker-check {
+        padding-top: 0px;
+    }
+    .select-all {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 0px;
+    }
+    .select-all input,
+    .marker-check input {
+        width: 15px;
+        height: 15px;
+    }
+    .search-container input,
+    .filter-container input {
+        height: 30px;
+        font-size: 15px;
+    }
+    .search-box {
+        width: 22vw;
+    }
+    .search-marker {
+        height: 30px;
+        width: 30%;
+    }
+    .search-marker span {
+        font-size: 15px;
+    }
+    .types-list i {
+        font-size: 30px;
+    }
+    .listings {
+        font-size: 15px;
+    }
+    .markers-container i {
+        font-size: 20px;
+    }
+    .filter-items span {
+        font-size: 15px;
+    }
+    .filter-items span i {
+        font-size: 20px;
+    }
+    /*The infobubble*/
+    #pano {
+        width: 40vw;
+        height: 40vw;
+    }
+    .moreInfo-button {
+        height: 30px;
+        font-size: 15px;
+    }
+    .moreInfo-button {
+        margin-bottom: 0px;
+    }
+    #info-heading {
+        font-size: 25px;
+    }
+    /*The results container*/
+    .results-container {
+        width: 35vw;
+    }
+    #accordion h3 {
+        font-size: 20px;
+    }
+    /*The foursquare results*/
+    .fsquare-items {
+        font-size: 15px;
+    }
+    .fsquare-details p {
+        font-size: 14px;
+    }
+    .fsquare-showmap {
+        height: 34px;
+        font-size: 17px;
+    }
+    .fsquare-attrib,
+    .wiki-attrib {
+        font-size: 10px;
+    }
+    .wiki-links {
+        font-size: 15px;
+    }
+}
+
+@media screen and (min-width: 960px) {
+    .map-size {
+        width: 65vw;
+        left: 35vw;
+    }
+    .nav-info {
+        width: 35vw;
+    }
+    .menu-container {
+        width: 35vw;
+    }
+    .search-box {
+        width: 20vw;
+    }
+}
+
+@media screen and (min-width: 1100px) {
+    .map-size {
+        width: 70vw;
+        left: 30vw;
+    }
+    .nav-info {
+        width: 30vw;
+    }
+    .menu-container {
+        width: 30vw;
+    }
+    .search-box {
+        width: 17vw;
+    }
+}
+
+@media screen and (min-width: 1250px) {
+    .map-size {
+        width: 75vw;
+        left: 25vw;
+    }
+    .nav-info {
+        width: 25vw;
+    }
+    .menu-container {
+        width: 25vw;
+    }
+    .search-box {
+        width: 15vw;
+    }
+    .results-container {
+        width: 25vw;
+    }
+}
+
+
 /*Large screen size devices*/
 
-@media screen and (min-width: 1024px) {
+@media screen and (min-width: 1024px) and (min-height: 1360px) {
     /*The info area*/
     .hide-nav-info {
         bottom: -3.5vh;
@@ -560,9 +778,19 @@ label[for="nav-trigger"] {
     .nav-info-icon {
         font-size: 50px;
     }
+    .nav-info {
+        width: 100vw;
+    }
+    .menu-container {
+        width: 80vw;
+    }
     .nav-info p {
         font-size: 45px;
         padding-left: 45px;
+    }
+    .map-size {
+        width: 100vw;
+        left: 0vw;
     }
     /*The hamburger icon*/
     .nav-menu span {
@@ -588,6 +816,13 @@ label[for="nav-trigger"] {
     .fsquare-showmap {
         height: 90px;
         font-size: 45px;
+    }
+    .fsquare-attrib,
+    .wiki-attrib {
+        font-size: 32px;
+    }
+    .cancel-nav span {
+        font-size: 50px;
     }
     /*Wikipedia items*/
     .wiki-links {
@@ -642,10 +877,13 @@ label[for="nav-trigger"] {
         font-size: 35px;
     }
     /*The selected filters*/
-    .filter-items span{
+    .filter-items span {
         font-size: 40px;
     }
-    .filter-items span i{
+    .filter-items span i {
         font-size: 55px;
+    }
+    .search-box {
+        width: 50vw;
     }
 }
