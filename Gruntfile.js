@@ -55,4 +55,4 @@ module.exports = function(grunt){
         'cssmin',
         'jsdoc'
         ]);
-}
+};
