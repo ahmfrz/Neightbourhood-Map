@@ -1,4 +1,4 @@
-const DATE = new Date();
+var date = new Date();
 
 /**
 @description Contains all FourSquare API related data
@@ -6,9 +6,9 @@ const DATE = new Date();
 var fSquare = {
     clientID: "YOUR_CLIENT_ID",
     clientSecret: "YOUR_CLIENT_SECRET",
-    version: (DATE.getFullYear().toString() + (DATE.getMonth() > 9 ? DATE.getMonth().toString() : '0'
-            + DATE.getMonth().toString()) + (DATE.getDate() > 9 ? DATE.getDate().toString() : '0'
-            + DATE.getDate().toString())),
+    version: (date.getFullYear().toString() + (date.getMonth() > 9 ? date.getMonth().toString() : '0'
+            + date.getMonth().toString()) + (date.getDate() > 9 ? date.getDate().toString() : '0'
+            + date.getDate().toString())),
     base_url: "https://api.foursquare.com/v2/venues/explore?",
     format_LatLng: function(latLng) {
         return latLng.lat() + "," + latLng.lng();
