@@ -1,9 +1,14 @@
-var date = new Date();
+const DATE = new Date();
 
+/**
+@description Contains all FourSquare API related data
+*/
 var fSquare = {
     clientID: "YOUR_CLIENT_ID",
     clientSecret: "YOUR_CLIENT_SECRET",
-    version: date.getFullYear().toString() + (date.getMonth() > 9 ? date.getMonth().toString() : '0' + date.getMonth().toString()) + (date.getDate() > 9 ? date.getDate().toString() : '0' + date.getDate().toString()),
+    version: (DATE.getFullYear().toString() + (DATE.getMonth() > 9 ? DATE.getMonth().toString() : '0'
+            + DATE.getMonth().toString()) + (DATE.getDate() > 9 ? DATE.getDate().toString() : '0'
+            + DATE.getDate().toString())),
     base_url: "https://api.foursquare.com/v2/venues/explore?",
     format_LatLng: function(latLng) {
         return latLng.lat() + "," + latLng.lng();
@@ -21,6 +26,9 @@ var fSquare = {
     }
 }
 
+/**
+@description Contains all Wiki API related data
+*/
 var wiki = {
     base_url: "https://en.wikipedia.org/w/api.php?",
     get_url: function(title) {
@@ -32,7 +40,9 @@ var wiki = {
     }
 }
 
-// Locations model
+/**
+@description Contains locations to be shown when page is loaded
+*/
 var locations = [{
     name: 'Norita Building',
     location: { lat: 19.1179, lng: 72.9080 },
@@ -55,6 +65,9 @@ var locations = [{
     type: 'Mall'
 }];
 
+/**
+@description Contains mapping of types and icons for category filters
+*/
 var typeMap = {
     'building': 'home',
     'mall': 'shopping_cart',
@@ -71,6 +84,11 @@ var typeMap = {
     'default': 'view_quilt'
 }
 
+/**
+@description Represents a place
+@constructor
+@param {object} Holds place related data: name, location, type
+*/
 function Place(data) {
     this.name = data.name;
     this.location = data.location;
@@ -86,6 +104,11 @@ $('#nav-trigger').on('change', function() {
     }
 });
 
+/**
+@description Main viewmodel for the SPA
+@constructor
+@param {object} The google map object
+*/
 function ViewModel(map) {
     var self = this;
 
@@ -95,7 +118,11 @@ function ViewModel(map) {
     self.filteredList = ko.observableArray();
     self.navData = {};
     self.locations = [];
+
+    // Use a single infobubble object instead of creating new object for every click
     self.largeInfoBubble = new InfoBubble();
+
+    // Refresh filter types list everytime markers list changes
     self.typesList = ko.computed(function() {
         var distinct_types = [];
         self.markersList().forEach(function(place) {
@@ -107,6 +134,7 @@ function ViewModel(map) {
         return distinct_types;
     });
 
+    // Select all checkbox
     self.allSelected = ko.computed(function() {
         var result = true;
         self.markersList().forEach(function(place) {
@@ -121,35 +149,59 @@ function ViewModel(map) {
         return result;
     });
 
+    /**
+    @description Handler for Select all
+    @returns {boolean} True to show selected checkbox
+    */
     self.selectAll = function() {
         var all = self.allSelected();
         ko.utils.arrayForEach(self.markersList(), function(place) {
             place.selected(!all);
         });
+
         return true;
     };
 
+    /**
+    @description Updates the map
+    @param {Place} Place object to make update to
+    @param {object} The map value: null or map
+    @param {boolean} True: selected, False: not selected
+    */
     self.updateMap = function(place, mapValue, selectedValue) {
         place.marker.setMap(mapValue);
         place.selected(selectedValue);
     }
 
+    /**
+    @description Filters by selected category
+    @param {object} The selected type
+    */
     self.filterbyCategory = function(data) {
         var boundaries = [];
         self.markersList().forEach(function(place) {
             if (place.type == data) {
+                // Update the map
                 self.updateMap(place, map, true);
+
+                // Add LatLng to reset boundaries
                 boundaries.push(place.marker.position);
             } else {
+                // Hide marker if type does not map
                 self.updateMap(place, null, false);
             }
         });
 
+        // Set boundaries to selected values
         self.setBounds(boundaries);
+
+        // Show the map
         self.showMap();
     }
 
-    // This function resets the boundaries
+    /**
+    @description Updates the map boundaries
+    */
     self.resetBounds = function() {
         // Set boundaries to show all markers
         var bounds = new google.maps.LatLngBounds();
@@ -160,25 +212,40 @@ function ViewModel(map) {
         map.fitBounds(bounds);
     };
 
+    /**
+    @description Hides all markers from the map
+    */
     self.hideMarkers = function() {
         self.markersList().forEach(function(place) {
             self.updateMap(place, null, false);
         });
     }
 
+    /**
+    @description Shows all markers on the map
+    */
     self.showMarkers = function() {
+        // Remove all filters
         self.filteredList.removeAll();
         self.markersList().forEach(function(place) {
             self.updateMap(place, map, true)
         });
 
+        // Reset boundaries to show all markers
         self.resetBounds();
     };
 
+    /**
+    @description Shows more information
+    */
     self.showInfo = function() {
         self.hideNavInfo();
     }
 
+    /**
+    @description Deletes marker from the map
+    @param {Place} The corresponding place object
+    */
     self.deleteMarker = function(place) {
         self.updateMap(place, null, false);
         self.removeFilter(place.marker.title);
@@ -198,10 +265,17 @@ function ViewModel(map) {
     //     });
     // };
 
+    /**
+    @description Hides third party api results area
+    */
     self.hideResults = function() {
         $('.results-container').removeClass('show-results');
     }
 
+    /**
+    @description Shows the map
+    @param {Place} The corresponding place object
+    */
     self.showMap = function() {
         self.hideMenu();
         self.hideResults();
@@ -209,6 +283,9 @@ function ViewModel(map) {
         self.largeInfoBubble.close();
     };
 
+    /**
+    @description Hide navigation info area
+    */
     self.hideNavInfo = function() {
         $('label[for="nav-trigger"]').removeClass('nav-menu-hide');
         $('#map').removeClass('resize-map');
@@ -216,6 +293,11 @@ function ViewModel(map) {
         $('.nav-info').addClass('hide-nav-info');
     };
 
+    /**
+    @description Toggles clicked marker
+    @param {Place} The corresponding place object
+    @param {boolean} Returns true to update checkbox
+    */
     self.toggleMarker = function(data) {
         if (data.selected()) {
             self.updateMap(data, null, false);
@@ -237,25 +319,42 @@ function ViewModel(map) {
     //     }
     // });
 
+    /**
+    @description Adds filter value to filters list
+    */
     self.addFilter = function() {
+        // Get the value from UI
         $filterValue = $('.filter-container .search-box');
         var title = $filterValue[0].value;
+
+        // Check if the value is valid
         if (self.filteredList().indexOf(title) < 0 && self.checkMarkerExists(title) == false) {
+            // Add to filteredlist
             self.filteredList.push(title);
+
+            // Reset the filter textbox
             $filterValue.val('');
         }
     };
 
+    /**
+    @description Removes filter from the map
+    @param {string} The title of the filter
+    */
     self.removeFilter = function(data) {
         self.filteredList.remove(data);
     }
 
+    /**
+    @description Shows all filtered markers on the map
+    */
     self.showFilteredMarkers = function() {
         var boundaries = [];
 
         // Show each filtered marker on map
         self.filteredList().forEach(function(title) {
             for (var index = 0; index < self.markersList().length; index++) {
+                // Show filtered markers
                 if (self.markersList()[index].marker.title == title) {
                     self.updateMap(self.markersList()[index], map, true);
                     boundaries.push(self.markersList()[index].marker.position);
@@ -263,10 +362,14 @@ function ViewModel(map) {
             };
         });
 
+        // Re-adjust the boundaries
         self.setBounds(boundaries);
     };
 
-    self.filterMarkers = function(marker) {
+    /**
+    @description Filters markers
+    */
+    self.filterMarkers = function() {
         // Hide all markers
         self.hideMarkers();
 
@@ -277,7 +380,12 @@ function ViewModel(map) {
         self.showMap();
     };
 
+    /**
+    @description Sets boundaries
+    @param {List} List of latlng to set map bounds to
+    */
     self.setBounds = function(boundaries) {
+        // Check if there is any latlng in the list
         if (boundaries.length > 0) {
             var bounds = new google.maps.LatLngBounds();
             for (var index = 0; index < boundaries.length; index++) {
@@ -288,6 +396,9 @@ function ViewModel(map) {
         }
     }
 
+    /**
+    @description Shows the nav info
+    */
     self.showNavInfo = function() {
         $('label[for="nav-trigger"]').addClass('nav-menu-hide');
         $('#map').addClass('resize-map');
@@ -302,6 +413,12 @@ function ViewModel(map) {
         }
     };
 
+    /**
+    @description Shows navigation
+    @param {LatLng} The origin
+    @param {LatLng} The destination
+    @param {string} The travel mode
+    */
     self.navigate = function(origin, destination, mode) {
         self.hideMarkers();
         var directionService = new google.maps.DirectionsService;
@@ -316,6 +433,8 @@ function ViewModel(map) {
                     duration: response.routes[0].legs[0].duration.text
                 }
             }
+
+            // Show the navigation info
             self.showNavInfo();
             if (status == google.maps.DirectionsStatus.OK) {
                 var directionsDisplay = new google.maps.DirectionsRenderer({
@@ -340,14 +459,21 @@ function ViewModel(map) {
         });
     };
 
+    /**
+    @description Gets third party result from Foursquare api
+    @param {Marker} The current marker
+    */
     self.getFSquareResults = function(currentMarker) {
+        // Set timer to check if the request failed
         var fsquareTimeout = setTimeout(function() {
             $('.fsquare').prepend("<span>Failed to get FourSquare resources</span>");
         }, 8000);
 
+        // Get results from FourSquare asynchronously
         $.ajax({
             url: fSquare.get_url(currentMarker.position),
             success: function(data) {
+                // Clear the timer
                 clearTimeout(fsquareTimeout);
                 $fsquare_items = $('.fsquare-items');
                 $fsquare_item = $('.fsquare-items li:last-child');
@@ -358,6 +484,8 @@ function ViewModel(map) {
                 $('.fsquare-details div').empty();
                 var items = data.response.groups[0].items;
                 var results_size = items.length;
+
+                // Parse results
                 if (results_size != 0) {
                     for (var index = 0; index < results_size; index++) {
                         $fsquare_items.append('<li>' + items[index].venue.name + '</li>');
@@ -392,19 +520,29 @@ function ViewModel(map) {
         });
     }
 
+    /**
+    @description Gets third party result from Wikipedia api
+    @param {Marker} The current marker
+    */
     self.getWikiArticles = function(currentMarker) {
+        // Set timer to check if the request failed
         var wikiTimeout = setTimeout(function() {
             $('.wiki').text("Failed to get wikipedia resources");
         }, 8000);
+
+        // Get results from wikipedia asynchronously
         $.ajax({
             url: wiki.get_url(currentMarker.title),
             dataType: 'jsonp',
             crossDomain: true,
             success: function(data) {
+                // Clear the timer
                 clearTimeout(wikiTimeout);
                 $wiki_items = $('.wiki-items');
                 $wiki_items.empty();
-                var results_size = data[1].length > 5 ? 5 : data[1].length;
+
+                // Show only 15 results if there are more than 15 results
+                var results_size = data[1].length > 15 ? 15 : data[1].length;
                 if (results_size != 0) {
                     for (var i = 0; i < results_size; i++) {
                         $('.wiki-items').append("<li class='wiki-links'><a href='" + data[3][i] + "'>" + data[1][i] + "</li>");
@@ -420,6 +558,10 @@ function ViewModel(map) {
         });
     };
 
+    /**
+    @description Shows the third party results area
+    @param {Marker} The current marker
+    */
     self.showResults = function(currentMarker) {
         self.hideMenu();
         $('#accordion').accordion({
@@ -431,17 +573,21 @@ function ViewModel(map) {
 
         $('.results-container').addClass('show-results');
 
-        // Get five top picks from foursquare
+        // Get top picks from foursquare
         self.getFSquareResults(currentMarker);
 
         // Get articles about the area from WikiPedia
         self.getWikiArticles(currentMarker);
     }
 
-    // This function takes in a COLOR, and then creates a new marker
-    // icon of that color. The icon will be 21 px wide by 34 high, have an origin
-    // of 0, 0 and be anchored at 10, 34).
+    /**
+    @description Creates a new marker icon
+    @param {COLOR} The color of the marker
+    @returns {MarkerImage} The customized marker
+    */
     self.makeMarkerIcon = function(markerColor) {
+        // The icon will be 21 px wide by 34 high, have an origin
+        // of 0, 0 and be anchored at 10, 34)
         var markerImage = new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
             '|40|_|%E2%80%A2',
@@ -455,6 +601,11 @@ function ViewModel(map) {
     self.defaultIcon = self.makeMarkerIcon('0091ff');
     self.highlightedIcon = self.makeMarkerIcon('FFFF24');
 
+    /**
+    @description Populates the info bubble
+    @param {Marker} The corresponding marker
+    @param {InfoBubble} The infobubble to populate
+    */
     self.populateInfoBubble = function(marker, infoBubble) {
         // Clear the infobubble content to give apis
         // time to load.
@@ -516,6 +667,12 @@ function ViewModel(map) {
         });
     };
 
+    /**
+    @description Animates marker icon with timeout
+    @param {Marker} The marker to animate
+    @param {number} The timeout
+    @param {Animation} The animation
+    */
     self.animateMarkerWithTimeout = function(marker, timeout, animation) {
         if (marker.getAnimation() !== null) {
             marker.setAnimation(null);
@@ -531,6 +688,10 @@ function ViewModel(map) {
         }, timeout);
     };
 
+    /**
+    @description Shows marker
+    @param {Place} The place containing the marker
+    */
     self.showMarker = function(data) {
         data.marker.setMap(map);
         self.hideMenu();
@@ -539,7 +700,10 @@ function ViewModel(map) {
         map.setZoom(17);
     }
 
-    // Check if the marker already exists on the map
+    /**
+    @description Checks if marker to be added already exists on the map
+    @param {String} The marker title
+    */
     self.checkMarkerExists = function(title) {
         for (var i = 0; i < self.markersList().length; i++) {
             if (self.markersList()[i].marker.title === title) {
@@ -548,6 +712,10 @@ function ViewModel(map) {
         }
     };
 
+    /**
+    @description Creates a new marker for the given place
+    @param {Place} The place to add marker to
+    */
     self.createMarker = function(place) {
         // Don't add the marker if it already exists
         if (self.checkMarkerExists(place.name) == false) {
@@ -583,6 +751,9 @@ function ViewModel(map) {
         });
     };
 
+    /**
+    @description Hides the menu
+    */
     self.hideMenu = function() {
         // Clear search location and hide the menu
         $('.search-box').val('');
@@ -592,7 +763,9 @@ function ViewModel(map) {
         self.largeInfoBubble.close();
     }
 
-    // This function initializes map when page is loaded
+    /**
+    @description Initializes map when the page is loaded
+    */
     self.initialize = function() {
         // Create a new Place object for every location
         locations.forEach(function(place) {
@@ -614,7 +787,7 @@ function ViewModel(map) {
             var place = autoComplete.getPlace();
 
             // Make sure the address isn't blank.
-            if (place == '') {
+            if (place === undefined || place === '') {
                 window.alert('You must enter an area, or address.');
             } else {
                 // Geocode the address/area entered to get the center. Then, center the map
@@ -648,6 +821,9 @@ function ViewModel(map) {
     self.initialize();
 };
 
+/**
+@description Receives callback from google maps api and applies knockout bindings
+*/
 function initMap() {
     var map = new google.maps.Map($('#map')[0], { center: { lat: 19.2183, lng: 72.9781 }, zoom: 13 });
     ko.applyBindings(new ViewModel(map));
