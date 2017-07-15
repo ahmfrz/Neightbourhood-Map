@@ -1,3 +1,4 @@
+rootDir: /
 jsSrcDir: js/src/
 jsDistDir: js/dist/
 cssSrcDir: css/src/
