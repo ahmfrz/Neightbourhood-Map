@@ -26,10 +26,9 @@ Neighbourhood map with Google Maps API and KnockoutJS
  1. Download/ Fork(Find steps for forking in 'How to Contribute' section) this repository
  2. Replace 'YOUR_APP_ID' and 'YOUR_CLIENT_SECRET' strings with actual app_id and secret key of your Foursquare app
  3. Run the following commands on command prompt:
-      npm install
-      grunt
-      python -m SimpleHTTPServer
-    Note: Running the 'grunt' command, also generates documentation using [JSDOC](http://usejsdoc.org/) at root/Doc folder
+      * npm install
+      * grunt(It also generates documentation using [JSDOC](http://usejsdoc.org/) at root/Doc folder)
+      * python -m SimpleHTTPServer
  4. Open your favorite browser and navigate to 'http://localhost:8000/'
  5. Verify that Neighbourhood map webpage is displayed
 
