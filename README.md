@@ -18,8 +18,8 @@ Neighbourhood map with Google Maps API and KnockoutJS
 ### Pre-requisites:
  * NodeJS for NPM - https://nodejs.org/en/download/
  * Python - https://www.python.org/downloads/
- * Any text editor for editing the code(Sublime text preferred - https://www.sublimetext.com/download)
- * Developer account on - https://developers.google.com
+ * Any text editor for editing the code(Sublime text preferred - https://www.sublimetext.com/download/)
+ * Developer account on - https://developers.google.com/
  * Developer account on  - https://developer.foursquare.com/
 
 ### Steps
@@ -29,6 +29,7 @@ Neighbourhood map with Google Maps API and KnockoutJS
       npm install
       grunt
       python -m SimpleHTTPServer
+    Note: Running the 'grunt' command, also generates documentation using [JSDOC](http://usejsdoc.org/) at root/Doc folder
  4. Open your favorite browser and navigate to 'http://localhost:8000/'
  5. Verify that Neighbourhood map webpage is displayed
 
