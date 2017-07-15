@@ -465,8 +465,9 @@ function ViewModel(map) {
     */
     self.getFSquareResults = function(currentMarker) {
         // Set timer to check if the request failed
+        $('.fsquare-details p').empty();
         var fsquareTimeout = setTimeout(function() {
-            $('.fsquare').prepend("<span>Failed to get FourSquare resources</span>");
+            $('.fsquare-details p').append("<span>Failed to get FourSquare resources</span>");
         }, 8000);
 
         // Get results from FourSquare asynchronously
@@ -510,12 +511,12 @@ function ViewModel(map) {
                         })(items[index]));
                     }
                 } else {
-                    $('.fsquare').prepend("<span>There are no FourSquare results for this place</span>");
+                    $('.fsquare-details p').append("<span>There are no FourSquare results for this place</span>");
                 }
             },
             fail: function(data) {
                 clearTimeout(fsquareTimeout);
-                $('.fsquare').prepend("<span>Unable to get foursquare results</span>");
+                $('.fsquare-details p').append("<span>Unable to get foursquare results</span>");
             }
         });
     }

@@ -378,20 +378,8 @@ label[for="nav-trigger"] {
     cursor: pointer;
 }
 
-.wiki-links a:link {
-    color: #99ccff;
-}
-
-.wiki-links a:visited {
-    color: #0066cc;
-}
-
-.wiki-links a:hover {
-    color: #cce6ff;
-}
-
-.wiki-links a:active {
-    color: #66ffcc;
+.wiki-links a:hover{
+    color: #007fff;
 }
 
 .marker-operations {
