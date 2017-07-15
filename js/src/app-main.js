@@ -6,9 +6,7 @@ var date = new Date();
 var fSquare = {
     clientID: "YOUR_CLIENT_ID",
     clientSecret: "YOUR_CLIENT_SECRET",
-    version: (date.getFullYear().toString() + (date.getMonth() > 9 ? date.getMonth().toString() : '0'
-            + date.getMonth().toString()) + (date.getDate() > 9 ? date.getDate().toString() : '0'
-            + date.getDate().toString())),
+    version: (date.getFullYear().toString() + (date.getMonth() > 9 ? date.getMonth().toString() : '0' + date.getMonth().toString()) + (date.getDate() > 9 ? date.getDate().toString() : '0' + date.getDate().toString())),
     base_url: "https://api.foursquare.com/v2/venues/explore?",
     format_LatLng: function(latLng) {
         return latLng.lat() + "," + latLng.lng();
@@ -24,7 +22,7 @@ var fSquare = {
             'v': this.version
         });
     }
-}
+};
 
 /**
 @description Contains all Wiki API related data
@@ -38,7 +36,7 @@ var wiki = {
             'format': 'json'
         });
     }
-}
+};
 
 /**
 @description Contains locations to be shown when page is loaded
@@ -82,7 +80,7 @@ var typeMap = {
     'establishment': 'home',
     'point_of_interest': 'explore',
     'default': 'view_quilt'
-}
+};
 
 /**
 @description Represents a place
@@ -95,7 +93,7 @@ function Place(data) {
     this.type = typeMap[data.type.toLowerCase()] == undefined ? typeMap["default"] : typeMap[data.type.toLowerCase()];
     this.marker = null;
     this.selected = ko.observable(true);
-};
+}
 
 $('#nav-trigger').on('change', function() {
     if (this.checked) {
@@ -171,7 +169,7 @@ function ViewModel(map) {
     self.updateMap = function(place, mapValue, selectedValue) {
         place.marker.setMap(mapValue);
         place.selected(selectedValue);
-    }
+    };
 
     /**
     @description Filters by selected category
@@ -197,7 +195,7 @@ function ViewModel(map) {
 
         // Show the map
         self.showMap();
-    }
+    };
 
     /**
     @description Updates the map boundaries
@@ -219,7 +217,7 @@ function ViewModel(map) {
         self.markersList().forEach(function(place) {
             self.updateMap(place, null, false);
         });
-    }
+    };
 
     /**
     @description Shows all markers on the map
@@ -228,7 +226,7 @@ function ViewModel(map) {
         // Remove all filters
         self.filteredList.removeAll();
         self.markersList().forEach(function(place) {
-            self.updateMap(place, map, true)
+            self.updateMap(place, map, true);
         });
 
         // Reset boundaries to show all markers
@@ -240,7 +238,7 @@ function ViewModel(map) {
     */
     self.showInfo = function() {
         self.hideNavInfo();
-    }
+    };
 
     /**
     @description Deletes marker from the map
@@ -250,7 +248,7 @@ function ViewModel(map) {
         self.updateMap(place, null, false);
         self.removeFilter(place.marker.title);
         self.markersList.remove(place);
-    }
+    };
 
     // TODO : Remove this method if not used
     // self.reverseGeocode = function(latLng){
@@ -270,7 +268,7 @@ function ViewModel(map) {
     */
     self.hideResults = function() {
         $('.results-container').removeClass('show-results');
-    }
+    };
 
     /**
     @description Shows the map
@@ -343,7 +341,7 @@ function ViewModel(map) {
     */
     self.removeFilter = function(data) {
         self.filteredList.remove(data);
-    }
+    };
 
     /**
     @description Shows all filtered markers on the map
@@ -359,7 +357,7 @@ function ViewModel(map) {
                     self.updateMap(self.markersList()[index], map, true);
                     boundaries.push(self.markersList()[index].marker.position);
                 }
-            };
+            }
         });
 
         // Re-adjust the boundaries
@@ -394,7 +392,7 @@ function ViewModel(map) {
 
             map.fitBounds(bounds);
         }
-    }
+    };
 
     /**
     @description Shows the nav info
@@ -421,7 +419,7 @@ function ViewModel(map) {
     */
     self.navigate = function(origin, destination, mode) {
         self.hideMarkers();
-        var directionService = new google.maps.DirectionsService;
+        var directionService = new google.maps.DirectionsService();
         directionService.route({
             origin: origin,
             destination: destination,
@@ -432,7 +430,7 @@ function ViewModel(map) {
                     distance: response.routes[0].legs[0].distance.text,
                     duration: response.routes[0].legs[0].duration.text
                 }
-            }
+            };
 
             // Show the navigation info
             self.showNavInfo();
@@ -519,7 +517,7 @@ function ViewModel(map) {
                 $('.fsquare-details p').append("<span>Unable to get foursquare results</span>");
             }
         });
-    }
+    };
 
     /**
     @description Gets third party result from Wikipedia api
@@ -579,7 +577,7 @@ function ViewModel(map) {
 
         // Get articles about the area from WikiPedia
         self.getWikiArticles(currentMarker);
-    }
+    };
 
     /**
     @description Creates a new marker icon
@@ -597,7 +595,7 @@ function ViewModel(map) {
             new google.maps.Point(10, 34),
             new google.maps.Size(21, 34));
         return markerImage;
-    }
+    };
 
     self.defaultIcon = self.makeMarkerIcon('0091ff');
     self.highlightedIcon = self.makeMarkerIcon('FFFF24');
@@ -652,7 +650,7 @@ function ViewModel(map) {
                 $(infoContent.children[0]).html(marker.title);
                 $(infoContent.children[1]).html("No StreetView found");
             }
-        };
+        }
 
         // Use streetview service to get the closest streetview image within
         // 50 meters of the markers position
@@ -699,7 +697,7 @@ function ViewModel(map) {
         self.animateMarkerWithTimeout(data.marker, 3000, google.maps.Animation.BOUNCE);
         map.setCenter(data.marker.position);
         map.setZoom(17);
-    }
+    };
 
     /**
     @description Checks if marker to be added already exists on the map
@@ -762,7 +760,7 @@ function ViewModel(map) {
 
         // Close info window if opened
         self.largeInfoBubble.close();
-    }
+    };
 
     /**
     @description Initializes map when the page is loaded
@@ -820,7 +818,7 @@ function ViewModel(map) {
 
     // Call initialize to display initial locations
     self.initialize();
-};
+}
 
 /**
 @description Receives callback from google maps api and applies knockout bindings
@@ -828,4 +826,4 @@ function ViewModel(map) {
 function initMap() {
     var map = new google.maps.Map($('#map')[0], { center: { lat: 19.2183, lng: 72.9781 }, zoom: 13 });
     ko.applyBindings(new ViewModel(map));
-};
+}
