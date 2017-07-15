@@ -250,19 +250,6 @@ function ViewModel(map) {
         self.markersList.remove(place);
     };
 
-    // TODO : Remove this method if not used
-    // self.reverseGeocode = function(latLng){
-    //     var geocodeService = new google.maps.Geocoder();
-    //     geocodeService.geocode({
-    //         latLng: latLng,
-    //     }, function(response, status){
-    //         if(status == google.maps.GeocoderStatus.OK){
-    //             console.log(response[0].formatted_address);
-    //             return response[0].formatted_address;
-    //         }
-    //     });
-    // };
-
     /**
     @description Hides third party api results area
     */
@@ -306,16 +293,6 @@ function ViewModel(map) {
 
         return true;
     };
-
-    // TODO : REMOVE THIS IF NOT USED
-    // $filterValue = $('.filter-container .search-box');
-    // $filterValue.bind('input', function() {
-    //     var title = $filterValue[0].value;
-    //     if (self.filteredList().indexOf(title) < 0 && self.checkMarkerExists(title) == false) {
-    //         self.filteredList.push(title);
-    //     $filterValue.val('');
-    //     }
-    // });
 
     /**
     @description Adds filter value to filters list
