@@ -119,6 +119,7 @@ function ViewModel(map) {
 
     // Use a single infobubble object instead of creating new object for every click
     self.largeInfoBubble = new InfoBubble();
+    self.bounds = new google.maps.LatLngBounds();
 
     // Refresh filter types list everytime markers list changes
     self.typesList = ko.computed(function() {
@@ -147,6 +148,11 @@ function ViewModel(map) {
         return result;
     });
 
+    // Update the boundaries with window size
+    google.maps.event.addDomListener(window, 'resize', function() {
+        map.fitBounds(self.bounds);
+    });
+
     /**
     @description Handler for Select all
     @returns {boolean} True to show selected checkbox
@@ -157,6 +163,8 @@ function ViewModel(map) {
             place.selected(!all);
         });
 
+        // Close info window if opened
+        self.largeInfoBubble.close();
         return true;
     };
 
@@ -202,12 +210,11 @@ function ViewModel(map) {
     */
     self.resetBounds = function() {
         // Set boundaries to show all markers
-        var bounds = new google.maps.LatLngBounds();
         for (var i = 0; i < self.markersList().length; i++) {
-            bounds.extend(self.markersList()[i].marker.position);
+            self.bounds.extend(self.markersList()[i].marker.position);
         }
 
-        map.fitBounds(bounds);
+        map.fitBounds(self.bounds);
     };
 
     /**
@@ -362,12 +369,11 @@ function ViewModel(map) {
     self.setBounds = function(boundaries) {
         // Check if there is any latlng in the list
         if (boundaries.length > 0) {
-            var bounds = new google.maps.LatLngBounds();
             for (var index = 0; index < boundaries.length; index++) {
-                bounds.extend(boundaries[index]);
+                self.bounds.extend(boundaries[index]);
             }
 
-            map.fitBounds(bounds);
+            map.fitBounds(self.bounds);
         }
     };
 
@@ -439,18 +445,10 @@ function ViewModel(map) {
     @param {Marker} The current marker
     */
     self.getFSquareResults = function(currentMarker) {
-        // Set timer to check if the request failed
-        $('.fsquare-details p').empty();
-        var fsquareTimeout = setTimeout(function() {
-            $('.fsquare-details p').append("<span>Failed to get FourSquare resources</span>");
-        }, 8000);
-
         // Get results from FourSquare asynchronously
         $.ajax({
             url: fSquare.get_url(currentMarker.position),
             success: function(data) {
-                // Clear the timer
-                clearTimeout(fsquareTimeout);
                 $fsquare_items = $('.fsquare-items');
                 $fsquare_item = $('.fsquare-items li:last-child');
 
@@ -489,9 +487,8 @@ function ViewModel(map) {
                     $('.fsquare-details p').append("<span>There are no FourSquare results for this place</span>");
                 }
             },
-            fail: function(data) {
-                clearTimeout(fsquareTimeout);
-                $('.fsquare-details p').append("<span>Unable to get foursquare results</span>");
+            error: function(data) {
+                $('.fsquare-details p').append("<span>Unable to get foursquare results due to " + data + "</span>");
             }
         });
     };
@@ -501,19 +498,12 @@ function ViewModel(map) {
     @param {Marker} The current marker
     */
     self.getWikiArticles = function(currentMarker) {
-        // Set timer to check if the request failed
-        var wikiTimeout = setTimeout(function() {
-            $('.wiki').text("Failed to get wikipedia resources");
-        }, 8000);
-
         // Get results from wikipedia asynchronously
         $.ajax({
             url: wiki.get_url(currentMarker.title),
             dataType: 'jsonp',
             crossDomain: true,
             success: function(data) {
-                // Clear the timer
-                clearTimeout(wikiTimeout);
                 $wiki_items = $('.wiki-items');
                 $wiki_items.empty();
 
@@ -527,8 +517,7 @@ function ViewModel(map) {
                     $('.wiki').prepend("<span>There are no wiki articles for this place</span>");
                 }
             },
-            fail: function(data) {
-                clearTimeout(wikiTimeout);
+            error: function(data) {
                 $('.wiki').prepend("<span>Failed to get wikipedia resources due to " + data + "</span>");
             }
         });
@@ -672,6 +661,7 @@ function ViewModel(map) {
         data.marker.setMap(map);
         self.hideMenu();
         self.animateMarkerWithTimeout(data.marker, 3000, google.maps.Animation.BOUNCE);
+        self.populateInfoBubble(data.marker, self.largeInfoBubble);
         map.setCenter(data.marker.position);
         map.setZoom(17);
     };
@@ -803,4 +793,11 @@ function ViewModel(map) {
 function initMap() {
     var map = new google.maps.Map($('#map')[0], { center: { lat: 19.2183, lng: 72.9781 }, zoom: 13 });
     ko.applyBindings(new ViewModel(map));
+}
+
+/**
+@description Handles error if asynchronous request fails
+*/
+function mapLoadFailed(){
+    window.alert("Map could not be loaded, please try again!");
 }

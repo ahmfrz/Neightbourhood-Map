@@ -26,14 +26,14 @@ module.exports = function(grunt){
         concat:{
             all:{
                 src: [config.cssSrcDir + "*"],
-                dest: config.cssSrcDir + 'app.css'
+                dest: config.cssSrcDir + 'app-concat.css'
             }
         },
         // Minify css files
         cssmin:{
             target:{
                 files:[{
-                    src:[config.cssSrcDir + 'app.css'],
+                    src:[config.cssSrcDir + 'app-concat.css'],
                     dest: config.cssDistDir + 'app.min.css',
                     ext: '.min.css'
                 }]
@@ -46,13 +46,27 @@ module.exports = function(grunt){
                         destination: 'doc'
                     }
                 }
+            },
+        watch:{
+            files:[config.jsSrcDir + "*", config.cssSrcDir + "*", "index.html"],
+            tasks: ['clean','uglify', 'concat', 'cssmin'],
+            options:{
+                livereload: true
             }
+        },
+        clean:{
+            dev:{
+                src:[config.jsDistDir + "*.js", config.cssSrcDir + "app-concat.css",config.cssDistDir + "*.css"]
+            }
+        }
     });
 
     grunt.registerTask('default',[
+        'clean',
         'uglify',
         'concat',
         'cssmin',
-        'jsdoc'
+        'jsdoc',
+        'watch'
         ]);
 };

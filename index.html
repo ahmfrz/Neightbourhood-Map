@@ -1,93 +1,110 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>Neighbourhood Map</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <meta name="author" content="ahmfrz">
-    <meta name="description" content="Neighbourhood map with google maps">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link href="https://fonts.googleapis.com/css?family=Bungee+Shade|Space+Mono" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="css/dist/app.min.css">
-</head>
-
-<body>
-    <div id="map" class="map-size" data-bind="click: showMap"></div>
-    <div class="nav-info hide-nav-info" data-bind="click: showNavInfo"><span class="material-icons nav-info-icon">info</span>
-        <p></p>
-    </div>
-    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-    <label for="nav-trigger" class="nav-menu"><span class="material-icons">menu</span></label>
-    <div class="menu-container">
-        <h2>Places to visit</h2>
-        <div class="marker-operations">
-            <button data-bind="click: showMarkers">Show Markers</button>
-            <button data-bind="click: hideMarkers">Hide Markers</button>
-        </div>
-        <div class="search-container">
-            <input type="search" class="search-box" placeholder="Search Location" autofocus>
-            <button class="search-marker" data-bind="click: addMarker"><span>Add</span><i class="material-icons">add</i></button>
-        </div>
-        <div class="filter-container">
-            <input type="search" class="search-box" placeholder="Filter Markers" data-bind="event:{input: addFilter}" list="locations">
-            <datalist id="locations" data-bind="foreach: markersList">
-                <option data-bind="text: marker.title"></option>
-            </datalist>
-            <button class="search-marker" data-bind="click: filterMarkers"><span>Filter</span><i class="material-icons">filter_list</i></button>
-        </div>
-        <div>
-            <ul class="types-list" data-bind="foreach: typesList">
-                <li><i class="material-icons" data-bind="text: $data, click: $parent.filterbyCategory"></i></li>
-            </ul>
-        </div>
-        <div class="listings">
-        <div class="filter-items" data-bind="foreach: filteredList">
-            <span><span data-bind="text: $data"></span><i class="material-icons" data-bind="click: $parent.removeFilter">close</i></span>
-        </div>
-            <div class="select-all" data-bind="click: selectAll">
-                <input type="checkbox" data-bind="checked:allSelected"><span>Select All</span>
-            </div>
-            <ul class="markers-list" data-bind="foreach: markersList">
-                <span class="markers-container">
-                <span class="marker-check">
-                <input type="checkbox" data-bind="click: $parent.toggleMarker, checked:selected"><li class="list-items" data-bind="text: marker.title, click: $parent.showMarker"></li>
-                </span>
-                <i class="material-icons" data-bind="click: $parent.deleteMarker">delete</i>
-                </span>
-            </ul>
-        </div>
-    </div>
-    <div class="cancel-nav">
-        <span class="material-icons">cancel</span>
-    </div>
-    <input type="checkbox" id="results-trigger" class="results-trigger" />
-    <div class="results-container">
-        <h2>Third party results</h2>
-        <div id="accordion">
-            <!-- FourSquare results -->
-            <h3>FourSquare</h3>
-            <div class="fsquare">
-                <ul class="fsquare-items"></ul>
-                <div class="fsquare-details">
-                    <p>
-                    </p>
-                    <div>
+    <head>
+        <title>Neighbourhood Map</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta name="author" content="ahmfrz">
+        <meta name="description" content="Neighbourhood map with google maps">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link href="https://fonts.googleapis.com/css?family=Bungee+Shade|Space+Mono" rel="stylesheet">
+        <link rel="stylesheet" href="css/dist/app.min.css">
+    </head>
+    <body>
+        <section id="map" class="map-size" data-bind="click: showMap"></section>
+        <footer class="nav-info hide-nav-info" data-bind="click: showNavInfo">
+            <span class="material-icons nav-info-icon">info</span>
+            <p></p>
+        </footer>
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger" class="nav-menu">
+            <span class="material-icons">menu</span>
+        </label>
+        <aside class="menu-container">
+            <header>
+                <h2>Places to visit</h2>
+            </header>
+            <nav class="marker-operations">
+                <button data-bind="click: showMarkers">Show Markers</button>
+                <button data-bind="click: hideMarkers">Hide Markers</button>
+            </nav>
+            <main>
+                <article class="search-container">
+                    <input type="search" class="search-box" placeholder="Search Location" autofocus>
+                    <button class="search-marker" data-bind="click: addMarker">
+                        <span>Add</span>
+                        <i class="material-icons">add</i>
+                    </button>
+                </article>
+                <article class="filter-container">
+                    <input type="search" class="search-box" placeholder="Filter Markers" data-bind="event:{input: addFilter}" list="locations">
+                    <datalist id="locations" data-bind="foreach: markersList">
+                        <option data-bind="text: marker.title"></option>
+                    </datalist>
+                    <button class="search-marker" data-bind="click: filterMarkers">
+                        <span>Filter</span>
+                        <i class="material-icons">filter_list</i>
+                    </button>
+                </article>
+                <article>
+                    <ul class="types-list" data-bind="foreach: typesList">
+                        <li>
+                            <i class="material-icons" data-bind="text: $data, click: $parent.filterbyCategory"></i>
+                        </li>
+                    </ul>
+                </article>
+                <article class="listings">
+                    <div class="filter-items" data-bind="foreach: filteredList">
+                        <span>
+                            <span data-bind="text: $data"></span>
+                            <i class="material-icons" data-bind="click: $parent.removeFilter">close</i>
+                        </span>
                     </div>
+                    <div class="select-all" data-bind="click: selectAll">
+                        <input type="checkbox" data-bind="checked:allSelected">
+                        <span>Select All</span>
+                    </div>
+                    <ul class="markers-list" data-bind="foreach: markersList">
+                        <span class="markers-container">
+                            <span class="marker-check">
+                                <input type="checkbox" data-bind="click: $parent.toggleMarker, checked:selected">
+                                <li class="list-items" data-bind="text: marker.title, click: $parent.showMarker"></li>
+                            </span>
+                            <i class="material-icons" data-bind="click: $parent.deleteMarker">delete</i>
+                        </span>
+                    </ul>
+                </article>
+            </main>
+        </aside>
+        <div class="cancel-nav">
+            <span class="material-icons">cancel</span>
+        </div>
+        <input type="checkbox" id="results-trigger" class="results-trigger" />
+        <div class="results-container">
+            <h2>Third party results</h2>
+            <div id="accordion">
+                <!-- FourSquare results -->
+                <h3>FourSquare</h3>
+                <div class="fsquare">
+                    <ul class="fsquare-items"></ul>
+                    <div class="fsquare-details">
+                        <p></p>
+                        <div></div>
+                    </div>
+                    <span class="fsquare-attrib">Powered by FourSquare</span>
                 </div>
-                <span class="fsquare-attrib">Powered by FourSquare</span>
-            </div>
-            <!-- Wikipedia results -->
-            <h3>Wiki</h3>
-            <div class="wiki">
-                <ul class="wiki-items"></ul>
-                <span class="wiki-attrib">Powered by Wikipedia</span>
+                    <!-- Wikipedia results -->
+                <h3>Wiki</h3>
+                <div class="wiki">
+                    <ul class="wiki-items"></ul>
+                    <span class="wiki-attrib">Powered by Wikipedia</span>
+                </div>
             </div>
         </div>
-    </div>
-    <script type="text/javascript" src="js/dist/app.min.js"></script>
-    <script asycn defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places&key=AIzaSyDwg8MN8CGan9GCw1pIvGN21bD_BSqH_5M&v=3&callback=initMap">
-    </script>
-</body>
 
+        <!-- Load script file before loaded map api to avoid race condition -->
+        <script src="js/dist/app.min.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places&key=AIzaSyDwg8MN8CGan9GCw1pIvGN21bD_BSqH_5M&v=3&callback=initMap" onerror="mapLoadFailed()">
+        </script>
+    </body>
 </html>
