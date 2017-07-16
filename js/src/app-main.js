@@ -483,6 +483,9 @@ function ViewModel(map) {
     @param {Marker} The current marker
     */
     self.getFSquareResults = function(currentMarker) {
+        // Clear any previous errors
+        $('.fsquare-error').empty();
+
         // Get results from FourSquare asynchronously
         $.ajax({
             url: fSquare.get_url(currentMarker.position),
@@ -520,6 +523,9 @@ function ViewModel(map) {
     @param {Marker} The current marker
     */
     self.getWikiArticles = function(currentMarker) {
+        // Clear any previous errors
+        $('.wiki-error').empty();
+
         // Get results from wikipedia asynchronously
         $.ajax({
             url: wiki.get_url(currentMarker.title),
@@ -594,6 +600,70 @@ function ViewModel(map) {
     @param {InfoBubble} The infobubble to populate
     */
     self.populateInfoBubble = function(marker, infoBubble) {
+        // TODO : Hardcode content of infowindow
+        // // Clear the infobubble content to give apis
+        // // time to load.
+        // infoBubble.setContent('');
+
+        // var streetView = new google.maps.StreetViewService();
+        // var radius = 50;
+
+        // // Create content for infobubble
+        // var panoHeading, moreInfo, panorama, content;
+        // infoBubble.marker = marker;
+        // panoHeading = marker.title;
+
+        // // Make sure the marker property is
+        // // cleared if the infobubble is closed.
+        // infoBubble.addListener('click', function() {
+        //     infoBubble.marker = null;
+        // });
+
+
+        // // In case the status is OK, which means the pano was found, compute the
+        // // position of the streetview image, then calculate the heading, then get a
+        // // panorama from that and set the options
+        // function getStreetView(data, status) {
+        //     if (status === google.maps.StreetViewStatus.OK) {
+        //         var nearStreetViewLocation = data.location.latLng;
+        //         var heading = google.maps.geometry.spherical.computeHeading(
+        //             nearStreetViewLocation, marker.position);
+        //         var panoOptions = {
+        //             position: nearStreetViewLocation,
+        //             pov: {
+        //                 heading: heading,
+        //                 pitch: 10
+        //             }
+        //         };
+
+        //         panorama = new google.maps.StreetViewPanorama(
+        //             document.getElementById('pano'), panoOptions);
+        //     } else {
+        //         panorama = "No StreetView found";
+        //     }
+        // }
+
+        // // Use streetview service to get the closest streetview image within
+        // // 50 meters of the markers position
+        // streetView.getPanoramaByLocation(marker.position,
+        //     radius, getStreetView);
+
+        // content = '<div>';
+        // content += '<h1 id="info-heading">' + panoHeading + '</h1>';
+        // content += '<div id="pano"></div>';
+        // content += '<div id="moreInfo">';
+        // content += '<button class="moreInfo-button" onclick="moreInfoClick()">More Info</button>';
+        // content += '</div>';
+        // content += '</div>';
+        // infoBubble.setContent(content);
+
+        // // Open the infobubble on the correct marker.
+        // infoBubble.open(map, marker);
+        // function moreInfoClick(){
+        //     self.showResults(marker);
+        //     event.stopPropagation();
+        // };
+
         // Clear the infobubble content to give apis
         // time to load.
         infoBubble.setContent('');
