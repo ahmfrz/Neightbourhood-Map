@@ -341,7 +341,7 @@ label[for="nav-trigger"] {
 
 /*The details from foursquare api*/
 
-.fsquare-details p {
+.fsquare-details{
     font-size: 12px;
     padding-left: 5px;
     padding-right: 5px;
@@ -397,7 +397,6 @@ label[for="nav-trigger"] {
     padding: 1em 0.5em;
 }
 
-
 /*The filter options*/
 
 .filter-items {
@@ -437,7 +436,7 @@ label[for="nav-trigger"] {
     .menu-container h2 {
         font-size: 25px;
     }
-    .fsquare-details p {
+    .fsquare-details{
         font-size: 15px;
     }
 }
@@ -485,7 +484,7 @@ label[for="nav-trigger"] {
     .fsquare-items {
         font-size: 30px;
     }
-    .fsquare-details p {
+    .fsquare-details{
         font-size: 25px;
     }
     .fsquare-showmap {
@@ -687,7 +686,7 @@ label[for="nav-trigger"] {
     .fsquare-items {
         font-size: 15px;
     }
-    .fsquare-details p {
+    .fsquare-details{
         font-size: 14px;
     }
     .fsquare-showmap {
@@ -798,7 +797,7 @@ label[for="nav-trigger"] {
     .fsquare-items {
         font-size: 40px;
     }
-    .fsquare-details p {
+    .fsquare-details{
         font-size: 35px;
     }
     .fsquare-showmap {

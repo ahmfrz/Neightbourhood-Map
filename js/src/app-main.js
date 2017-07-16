@@ -95,6 +95,20 @@ function Place(data) {
     this.selected = ko.observable(true);
 }
 
+/**
+@description Represents a FourSquare venue
+@constructor
+@param {object} Holds venue related data: name, rating, address, contact, location, type
+*/
+function Venue(data){
+    this.name = data.name;
+    this.rating = data.rating ? data.rating : 'Rating not available';
+    this.address = data.address;
+    this.contact = data.contact || 'Contact info not available';
+    this.location = data.location;
+    this.type = data.type;
+}
+
 $('#nav-trigger').on('change', function() {
     if (this.checked) {
         $('.results-container').removeClass('show-results');
@@ -114,8 +128,14 @@ function ViewModel(map) {
     self.markers = ko.observableArray();
     self.markersList = ko.observableArray();
     self.filteredList = ko.observableArray();
+    self.fsquareResult = ko.observableArray();
+    self.wikiResult = ko.observableArray();
+    self.currentFsquareResult = ko.observable();
+    self.filterText = ko.observable();
     self.navData = {};
     self.locations = [];
+    self.currentMarker = new google.maps.Marker();
+    self.directionsDisplay = new google.maps.DirectionsRenderer();
 
     // Use a single infobubble object instead of creating new object for every click
     self.largeInfoBubble = new InfoBubble();
@@ -306,8 +326,7 @@ function ViewModel(map) {
     */
     self.addFilter = function() {
         // Get the value from UI
-        $filterValue = $('.filter-container .search-box');
-        var title = $filterValue[0].value;
+        var title = self.filterText();
 
         // Check if the value is valid
         if (self.filteredList().indexOf(title) < 0 && self.checkMarkerExists(title) == false) {
@@ -315,7 +334,7 @@ function ViewModel(map) {
             self.filteredList.push(title);
 
             // Reset the filter textbox
-            $filterValue.val('');
+            self.filterText('');
         }
     };
 
@@ -394,6 +413,17 @@ function ViewModel(map) {
         }
     };
 
+    self.cancelNavigation = function(){
+        console.log("HERE");
+        self.directionsDisplay.setMap(null);
+        self.showMarkers();
+        self.showMap();
+        $('.cancel-nav').removeClass('cancel-visible');
+
+        // Clear nav data object to reset info area
+        self.navData.navInfo = undefined;
+    }
+
     /**
     @description Shows navigation
     @param {LatLng} The origin
@@ -418,27 +448,35 @@ function ViewModel(map) {
             // Show the navigation info
             self.showNavInfo();
             if (status == google.maps.DirectionsStatus.OK) {
-                var directionsDisplay = new google.maps.DirectionsRenderer({
-                    map: map,
-                    directions: response,
-                    draggable: true,
-                });
+                // Set directions display
+                self.directionsDisplay.setMap(map);
+                self.directionsDisplay.setDirections(response);
 
                 $('.cancel-nav').addClass('cancel-visible');
-                $('#navigation-cancel, .cancel-nav').on('click', function() {
-                    directionsDisplay.setMap(null);
-                    self.showMarkers();
-                    self.showMap();
-                    $('.cancel-nav').removeClass('cancel-visible');
-
-                    // Clear nav data object to reset info area
-                    self.navData.navInfo = undefined;
-                });
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
         });
     };
+
+    /**
+    @description Shows Foursquare result of selected venue
+    @param {Venue} The current venue
+    */
+    self.showFsqaureResult = function(venue){
+        self.currentFsquareResult(venue);
+    }
+
+    /**
+    @description Shows navigation to selected Foursquare venue
+    @param {Venue} The current venue
+    */
+    self.navigateToVenue = function(venue){
+        self.createMarker(new Place({ name: venue.name, location: venue.location, type: venue.type }));
+        self.showMap();
+        var current = { lat: self.currentMarker.position.lat(), lng: self.currentMarker.position.lng() };
+        self.navigate(current, venue.location, 'driving');
+    }
 
     /**
     @description Gets third party result from Foursquare api
@@ -449,46 +487,30 @@ function ViewModel(map) {
         $.ajax({
             url: fSquare.get_url(currentMarker.position),
             success: function(data) {
-                $fsquare_items = $('.fsquare-items');
-                $fsquare_item = $('.fsquare-items li:last-child');
-
                 // Remove old items before adding new items
-                $fsquare_items.empty();
-                $('.fsquare-details p').empty();
-                $('.fsquare-details div').empty();
+                self.currentFsquareResult(null);
+                self.fsquareResult([]);
                 var items = data.response.groups[0].items;
                 var results_size = items.length;
 
                 // Parse results
                 if (results_size != 0) {
                     for (var index = 0; index < results_size; index++) {
-                        $fsquare_items.append('<li>' + items[index].venue.name + '</li>');
-                        $('.fsquare-items li:last-child').on('click', (function(itemCopy) {
-                            return function() {
-                                $('.fsquare-details p').empty();
-                                $('.fsquare-details div').empty();
-                                var name = itemCopy.venue.name;
-                                $('.fsquare-details p').append('<span><b> ' + name + '</b></span>');
-                                $('.fsquare-details p').append('<br/><span><b>Rating:</b> ' + itemCopy.venue.rating + '</span>');
-                                $('.fsquare-details p').append('<br/><span><b>Address:</b> ' + itemCopy.venue.location.address + '</span>');
-                                $('.fsquare-details p').append('<br/><span><b>Contact:</b> ' + itemCopy.venue.contact.formattedphone + '</span>');
-                                $('.fsquare-details div').append('<button class="fsquare-showmap">Navigate</button>');
-                                $('.fsquare-showmap').on('click', function() {
-                                    var location = { lat: itemCopy.venue.location.lat, lng: itemCopy.venue.location.lng };
-                                    self.createMarker(new Place({ name: name, location: location, type: itemCopy.venue.categories[0].name }));
-                                    self.showMap();
-                                    var current = { lat: currentMarker.position.lat(), lng: currentMarker.position.lng() };
-                                    self.navigate(current, location, 'driving');
-                                });
-                            };
-                        })(items[index]));
+                        self.fsquareResult.push(new Venue({
+                            name: items[index].venue.name,
+                            rating: items[index].venue.rating,
+                            address: items[index].venue.location.address,
+                            contact: items[index].venue.contact.formattedPhone,
+                            location: { lat: items[index].venue.location.lat, lng: items[index].venue.location.lng },
+                            type: items[index].venue.categories[0].name
+                        }));
                     }
                 } else {
-                    $('.fsquare-details p').append("<span>There are no FourSquare results for this place</span>");
+                    $('.fsquare-error').html("There are no FourSquare results for this place");
                 }
             },
             error: function(data) {
-                $('.fsquare-details p').append("<span>Unable to get foursquare results due to " + data + "</span>");
+                $('.fsquare-error').html("Unable to get foursquare results [" + data.responseJSON.meta.errorDetail + "]");
             }
         });
     };
@@ -504,21 +526,21 @@ function ViewModel(map) {
             dataType: 'jsonp',
             crossDomain: true,
             success: function(data) {
-                $wiki_items = $('.wiki-items');
-                $wiki_items.empty();
+                // Remove previous results
+                self.wikiResult([]);
 
                 // Show only 15 results if there are more than 15 results
                 var results_size = data[1].length > 15 ? 15 : data[1].length;
                 if (results_size != 0) {
                     for (var i = 0; i < results_size; i++) {
-                        $('.wiki-items').append("<li class='wiki-links'><a href='" + data[3][i] + "'>" + data[1][i] + "</li>");
+                        self.wikiResult.push({link: data[3][i], title: data[1][i]});
                     }
                 } else {
-                    $('.wiki').prepend("<span>There are no wiki articles for this place</span>");
+                    $('.wiki-error').html("There are no wiki articles for this place");
                 }
             },
-            error: function(data) {
-                $('.wiki').prepend("<span>Failed to get wikipedia resources due to " + data + "</span>");
+            error: function() {
+                $('.wiki-error').html("Failed to get wikipedia resources");
             }
         });
     };
@@ -714,6 +736,7 @@ function ViewModel(map) {
         place.marker.addListener('click', function() {
             self.animateMarkerWithTimeout(this, 2000, google.maps.Animation.BOUNCE);
             self.populateInfoBubble(this, self.largeInfoBubble);
+            self.currentMarker = this;
         });
     };
 

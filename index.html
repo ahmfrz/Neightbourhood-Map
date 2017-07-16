@@ -37,7 +37,7 @@
                     </button>
                 </article>
                 <article class="filter-container">
-                    <input type="search" class="search-box" placeholder="Filter Markers" data-bind="event:{input: addFilter}" list="locations">
+                    <input type="search" class="search-box" placeholder="Filter Markers" data-bind="textInput: filterText, event:{input: addFilter}" list="locations">
                     <datalist id="locations" data-bind="foreach: markersList">
                         <option data-bind="text: marker.title"></option>
                     </datalist>
@@ -76,7 +76,7 @@
                 </article>
             </main>
         </aside>
-        <div class="cancel-nav">
+        <div class="cancel-nav" data-bind="click: cancelNavigation">
             <span class="material-icons">cancel</span>
         </div>
         <input type="checkbox" id="results-trigger" class="results-trigger" />
@@ -86,17 +86,39 @@
                 <!-- FourSquare results -->
                 <h3>FourSquare</h3>
                 <div class="fsquare">
-                    <ul class="fsquare-items"></ul>
-                    <div class="fsquare-details">
-                        <p></p>
-                        <div></div>
+                    <ul class="fsquare-items" data-bind="foreach: fsquareResult">
+                        <li data-bind="text: name, click: $parent.showFsqaureResult">
+                        </li>
+                    </ul>
+                    <div class="fsquare-details" data-bind="with: currentFsquareResult">
+                        <span>
+                            <b data-bind="text: name"></b>
+                        </span>
+                        <br>
+                        <b>Rating</b>
+                        <span data-bind="text: rating"></span>
+                        <br>
+                        <b>Address</b>
+                        <span data-bind="text: address"></span>
+                        <br>
+                        <b>Contact</b>
+                        <span data-bind="text: contact"></span>
+                        <div>
+                            <button class="fsquare-showmap" data-bind="click: $parent.navigateToVenue">Navigate</button>
+                        </div>
                     </div>
+                    <div class="fsquare-error"></div>
                     <span class="fsquare-attrib">Powered by FourSquare</span>
                 </div>
                     <!-- Wikipedia results -->
                 <h3>Wiki</h3>
                 <div class="wiki">
-                    <ul class="wiki-items"></ul>
+                    <ul class="wiki-items" data-bind="foreach: wikiResult">
+                        <li class="wiki-links">
+                            <a data-bind="text: title, attr:{href: link}"></a>
+                        </li>
+                    </ul>
+                    <div class="wiki-error"></div>
                     <span class="wiki-attrib">Powered by Wikipedia</span>
                 </div>
             </div>
