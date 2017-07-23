@@ -109,13 +109,6 @@ function Venue(data){
     this.type = data.type;
 }
 
-$('#nav-trigger').on('change', function() {
-    if (this.checked) {
-        $('.results-container').removeClass('show-results');
-        $('.search-box').focus();
-    }
-});
-
 /**
 @description Main viewmodel for the SPA
 @constructor
@@ -134,6 +127,16 @@ function ViewModel(map) {
     self.currentFsquareResult = ko.observable();
     self.filterText = ko.observable();
     self.searchbox = ko.observable();
+    self.searchFocus = ko.observable(true);
+    self.showResultsArea = ko.observable(false);
+    self.hideNavInfoArea = ko.observable(true);
+    self.navMenuHide = ko.observable(false);
+    self.resizeMap = ko.observable(false);
+    self.navInfoMarkerText = ko.observable();
+    self.navInfoDistanceText = ko.observable();
+    self.navInfoDurationText = ko.observable();
+    self.fsquareError = ko.observable();
+    self.wikiError = ko.observable();
     self.navData = {};
     self.locations = [];
     self.currentMarker = new google.maps.Marker();
@@ -161,9 +164,9 @@ function ViewModel(map) {
         self.markersList().forEach(function(place) {
             if (place.selected() === false) {
                 result = false;
-                place.marker.setMap(null);
+                place.marker.setVisible(false);
             } else {
-                place.marker.setMap(map);
+                place.marker.setVisible(true);
             }
         });
 
@@ -173,6 +176,13 @@ function ViewModel(map) {
     // Update the boundaries with window size
     google.maps.event.addDomListener(window, 'resize', function() {
         map.fitBounds(self.bounds);
+    });
+
+    $('#nav-trigger').on('change', function() {
+        if (this.checked) {
+            self.showResultsArea(false);
+            self.searchFocus(true);
+        }
     });
 
     /**
@@ -193,12 +203,11 @@ function ViewModel(map) {
     /**
     @description Updates the map
     @param {Place} Place object to make update to
-    @param {object} The map value: null or map
-    @param {boolean} True: selected, False: not selected
+    @param {boolean} The marker's visibility value: True: show marker, False: hide marker
     */
-    self.updateMap = function(place, mapValue, selectedValue) {
-        place.marker.setMap(mapValue);
-        place.selected(selectedValue);
+    self.updateMap = function(place, visibilityValue) {
+        place.marker.setVisible(visibilityValue);
+        place.selected(visibilityValue);
     };
 
     /**
@@ -211,13 +220,13 @@ function ViewModel(map) {
         self.markersList().forEach(function(place) {
             if (place.type == data) {
                 // Update the map
-                self.updateMap(place, map, true);
+                self.updateMap(place, true);
 
                 // Add LatLng to reset boundaries
                 boundaries.push(place.marker.position);
             } else {
                 // Hide marker if type does not map
-                self.updateMap(place, null, false);
+                self.updateMap(place, false);
             }
         });
 
@@ -245,7 +254,7 @@ function ViewModel(map) {
     */
     self.hideMarkers = function() {
         self.markersList().forEach(function(place) {
-            self.updateMap(place, null, false);
+            self.updateMap(place, false);
         });
     };
 
@@ -256,7 +265,7 @@ function ViewModel(map) {
         // Remove all filters
         self.filteredList.removeAll();
         self.markersList().forEach(function(place) {
-            self.updateMap(place, map, true);
+            self.updateMap(place, true);
         });
 
         // Reset boundaries to show all markers
@@ -275,7 +284,8 @@ function ViewModel(map) {
     @param {Place} The corresponding place object
     */
     self.deleteMarker = function(place) {
-        self.updateMap(place, null, false);
+        self.updateMap(place, false);
+        place.marker.setMap(null);
         self.removeFilter(place.marker.title);
         self.markersList.remove(place);
     };
@@ -284,7 +294,7 @@ function ViewModel(map) {
     @description Hides third party api results area
     */
     self.hideResults = function() {
-        $('.results-container').removeClass('show-results');
+        self.showResultsArea(false);
     };
 
     /**
@@ -302,10 +312,9 @@ function ViewModel(map) {
     @description Hide navigation info area
     */
     self.hideNavInfo = function() {
-        $('label[for="nav-trigger"]').removeClass('nav-menu-hide');
-        $('#map').removeClass('resize-map');
-        $('.nav-info p').empty();
-        $('.nav-info').addClass('hide-nav-info');
+        self.navMenuHide(false);
+        self.resizeMap(false);
+        self.hideNavInfoArea(true);
     };
 
     /**
@@ -315,10 +324,9 @@ function ViewModel(map) {
     */
     self.toggleMarker = function(data) {
         if (data.selected()) {
-            self.updateMap(data, null, false);
-
+            self.updateMap(data, false);
         } else {
-            self.updateMap(data, map, true);
+            self.updateMap(data, true);
         }
 
         return true;
@@ -367,7 +375,7 @@ function ViewModel(map) {
             for (var index = 0; index < self.markersList().length; index++) {
                 // Show filtered markers
                 if (self.markersList()[index].marker.title == title) {
-                    self.updateMap(self.markersList()[index], map, true);
+                    self.updateMap(self.markersList()[index], true);
                     boundaries.push(self.markersList()[index].marker.position);
                 }
             }
@@ -410,16 +418,16 @@ function ViewModel(map) {
     @description Shows the nav info
     */
     self.showNavInfo = function() {
-        $('label[for="nav-trigger"]').addClass('nav-menu-hide');
-        $('#map').addClass('resize-map');
-        $('.nav-info').removeClass('hide-nav-info');
-        $nav_para = $('.nav-info p');
-        $nav_para.empty();
+        self.navMenuHide(true);
+        self.resizeMap(true);
+        self.hideNavInfoArea(false);
+        self.navInfoMarkerText('Total Markers [' + self.markersList().length + ']');
         if (self.navData.navInfo != undefined) {
-            $nav_para.append('<span><b>Total Distance:</b> ' + self.navData.navInfo.distance + '</span>');
-            $nav_para.append('</br><span><b>Total Duration:</b> ' + self.navData.navInfo.duration + '</span>');
-        } else {
-            $nav_para.append('<span>Total Markers [' + self.markersList().length + ']');
+            self.navInfoDistanceText('Total Distance: ' + self.navData.navInfo.distance);
+            self.navInfoDurationText('Total Duration: ' + self.navData.navInfo.duration);
+        }else{
+            self.navInfoDistanceText('');
+            self.navInfoDurationText('');
         }
     };
 
@@ -493,7 +501,7 @@ function ViewModel(map) {
     */
     self.getFSquareResults = function(currentMarker) {
         // Clear any previous errors
-        $('.fsquare-error').empty();
+        self.fsquareError('');
 
         // Get results from FourSquare asynchronously
         $.ajax({
@@ -518,11 +526,13 @@ function ViewModel(map) {
                         }));
                     }
                 } else {
-                    $('.fsquare-error').html("There are no FourSquare results for this place");
+                    self.fsquareError("There are no FourSquare results for this place");
                 }
             },
             error: function(data) {
-                $('.fsquare-error').html("Unable to get foursquare results [" + data.responseJSON.meta.errorDetail + "]");
+                self.fsquareError("Unable to get foursquare results");
+                console.log("Foursquare error details:");
+                console.log(data);
             }
         });
     };
@@ -533,7 +543,7 @@ function ViewModel(map) {
     */
     self.getWikiArticles = function(currentMarker) {
         // Clear any previous errors
-        $('.wiki-error').empty();
+        self.wikiError('');
 
         // Get results from wikipedia asynchronously
         $.ajax({
@@ -551,11 +561,11 @@ function ViewModel(map) {
                         self.wikiResult.push({link: data[3][i], title: data[1][i]});
                     }
                 } else {
-                    $('.wiki-error').html("There are no wiki articles for this place");
+                    self.wikiError("There are no wiki articles for this place");
                 }
             },
             error: function() {
-                $('.wiki-error').html("Failed to get wikipedia resources");
+                self.wikiError("Failed to get wikipedia resources");
             }
         });
     };
@@ -573,7 +583,7 @@ function ViewModel(map) {
             active: false
         });
 
-        $('.results-container').addClass('show-results');
+        self.showResultsArea(true);
 
         // Get top picks from foursquare
         self.getFSquareResults(currentMarker);
@@ -613,6 +623,9 @@ function ViewModel(map) {
         // time to load.
         infoBubble.setContent('');
 
+
+        // Set current marker
+        self.currentMarker = marker;
         // Create content for infobubble
         var infoContent = document.createElement('div');
         $(infoContent).append('<h1 id="info-heading"></h1>');
@@ -695,10 +708,17 @@ function ViewModel(map) {
     @param {Place} The place containing the marker
     */
     self.showMarker = function(data) {
+        // Show the marker
         data.marker.setMap(map);
+
+        // Hide menu
         self.hideMenu();
+
+        // Highlight the marker
         self.animateMarkerWithTimeout(data.marker, 3000, google.maps.Animation.BOUNCE);
         self.populateInfoBubble(data.marker, self.largeInfoBubble);
+
+        // Center in on the marker
         map.setCenter(data.marker.position);
         map.setZoom(17);
     };
@@ -749,9 +769,9 @@ function ViewModel(map) {
         // Create an onclick event to open the large
         // infobubble at each marker.
         place.marker.addListener('click', function() {
+            map.panTo(this.getPosition());
             self.animateMarkerWithTimeout(this, 2000, google.maps.Animation.BOUNCE);
             self.populateInfoBubble(this, self.largeInfoBubble);
-            self.currentMarker = this;
         });
     };
 

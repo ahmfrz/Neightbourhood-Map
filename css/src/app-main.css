@@ -21,6 +21,10 @@ button {
     border-radius: 5px;
 }
 
+.show-InfoContent{
+    display: none;
+}
+
 .cancel-nav {
     visibility: hidden;
     position: fixed;
@@ -80,6 +84,10 @@ button {
     margin-top: 0px;
     padding-left: 15px;
     padding-right: 15px;
+}
+
+.nav-info p span{
+    display: block;
 }
 
 .hide-nav-info {

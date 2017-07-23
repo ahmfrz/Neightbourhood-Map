@@ -7,17 +7,21 @@
         <meta name="author" content="ahmfrz">
         <meta name="description" content="Neighbourhood map with google maps">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <link href="https://fonts.googleapis.com/css?family=Bungee+Shade|Space+Mono" rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bungee+Shade|Space+Mono" >
         <link rel="stylesheet" href="css/dist/app.min.css">
     </head>
     <body>
-        <section id="map" class="map-size" data-bind="click: showMap"></section>
-        <footer class="nav-info hide-nav-info" data-bind="click: showNavInfo">
+        <section id="map" class="map-size" data-bind="click: showMap, css:{'resize-map': resizeMap}"></section>
+        <footer class="nav-info" data-bind="click: showNavInfo, css:{'hide-nav-info': hideNavInfoArea}">
             <span class="material-icons nav-info-icon">info</span>
-            <p></p>
+            <p>
+                <span data-bind="text: navInfoMarkerText"></span>
+                <span data-bind="text: navInfoDistanceText"></span>
+                <span data-bind="text: navInfoDurationText"></span>
+            </p>
         </footer>
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-        <label for="nav-trigger" class="nav-menu">
+        <label for="nav-trigger" class="nav-menu" data-bind="css:{'nav-menu-hide': navMenuHide}">
             <span class="material-icons">menu</span>
         </label>
         <aside class="menu-container">
@@ -28,59 +32,57 @@
                 <button data-bind="click: showMarkers">Show Markers</button>
                 <button data-bind="click: hideMarkers">Hide Markers</button>
             </nav>
-            <main>
-                <article class="search-container">
-                    <input type="search" class="search-box" data-bind="textInput: $root.searchbox" placeholder="Search Location" autofocus>
-                    <button class="search-marker" data-bind="click: addMarker">
-                        <span>Add</span>
-                        <i class="material-icons">add</i>
-                    </button>
-                </article>
-                <article class="filter-container">
-                    <input type="search" class="search-box" placeholder="Filter Markers" data-bind="textInput: filterText, event:{input: addFilter}" list="locations">
-                    <datalist id="locations" data-bind="foreach: markersList">
-                        <option data-bind="text: marker.title"></option>
-                    </datalist>
-                    <button class="search-marker" data-bind="click: filterMarkers">
-                        <span>Filter</span>
-                        <i class="material-icons">filter_list</i>
-                    </button>
-                </article>
-                <article>
-                    <ul class="types-list" data-bind="foreach: typesList">
-                        <li>
-                            <i class="material-icons" data-bind="text: $data, click: $parent.filterbyCategory"></i>
-                        </li>
-                    </ul>
-                </article>
-                <article class="listings">
-                    <div class="filter-items" data-bind="foreach: filteredList">
-                        <span>
-                            <span data-bind="text: $data"></span>
-                            <i class="material-icons" data-bind="click: $parent.removeFilter">close</i>
-                        </span>
+            <article class="search-container">
+                <input type="search" class="search-box" data-bind="textInput: $root.searchbox, hasFocus: $root.searchFocus" placeholder="Search Location" autofocus>
+                <button class="search-marker" data-bind="click: addMarker">
+                    <span>Add</span>
+                    <i class="material-icons">add</i>
+                </button>
+            </article>
+            <article class="filter-container">
+                <input type="search" class="search-box" placeholder="Filter Markers" data-bind="textInput: filterText, event:{input: addFilter}" list="locations">
+                <datalist id="locations" data-bind="foreach: markersList">
+                    <option data-bind="text: marker.title"></option>
+                </datalist>
+                <button class="search-marker" data-bind="click: filterMarkers">
+                    <span>Filter</span>
+                    <i class="material-icons">filter_list</i>
+                </button>
+            </article>
+            <article>
+                <ul class="types-list" data-bind="foreach: typesList">
+                    <li>
+                        <i class="material-icons" data-bind="text: $data, click: $parent.filterbyCategory"></i>
+                    </li>
+                </ul>
+            </article>
+            <article class="listings">
+                <div class="filter-items" data-bind="foreach: filteredList">
+                    <span>
+                        <span data-bind="text: $data"></span>
+                        <i class="material-icons" data-bind="click: $parent.removeFilter">close</i>
+                    </span>
+                </div>
+                <div class="select-all" data-bind="click: selectAll">
+                    <input type="checkbox" data-bind="checked:allSelected">
+                    <span>Select All</span>
+                </div>
+                <div class="markers-list" data-bind="foreach: markersList">
+                    <div class="markers-container">
+                        <div class="marker-check">
+                            <input type="checkbox" data-bind="click: $parent.toggleMarker, checked:selected">
+                            <span class="list-items" data-bind="text: marker.title, click: $parent.showMarker"></span>
+                        </div>
+                        <i class="material-icons" data-bind="click: $parent.deleteMarker">delete</i>
                     </div>
-                    <div class="select-all" data-bind="click: selectAll">
-                        <input type="checkbox" data-bind="checked:allSelected">
-                        <span>Select All</span>
-                    </div>
-                    <ul class="markers-list" data-bind="foreach: markersList">
-                        <span class="markers-container">
-                            <span class="marker-check">
-                                <input type="checkbox" data-bind="click: $parent.toggleMarker, checked:selected">
-                                <li class="list-items" data-bind="text: marker.title, click: $parent.showMarker"></li>
-                            </span>
-                            <i class="material-icons" data-bind="click: $parent.deleteMarker">delete</i>
-                        </span>
-                    </ul>
-                </article>
-            </main>
+                </div>
+            </article>
         </aside>
         <div class="cancel-nav" data-bind="click: cancelNavigation">
             <span class="material-icons">cancel</span>
         </div>
         <input type="checkbox" id="results-trigger" class="results-trigger" />
-        <div class="results-container">
+        <div class="results-container" data-bind="css: {'show-results': showResultsArea}">
             <h2>Third party results</h2>
             <div id="accordion">
                 <!-- FourSquare results -->
@@ -107,10 +109,10 @@
                             <button class="fsquare-showmap" data-bind="click: $parent.navigateToVenue">Navigate</button>
                         </div>
                     </div>
-                    <div class="fsquare-error"></div>
+                    <div class="fsquare-error" data-bind="text: fsquareError"></div>
                     <span class="fsquare-attrib">Powered by FourSquare</span>
                 </div>
-                    <!-- Wikipedia results -->
+                <!-- Wikipedia results -->
                 <h3>Wiki</h3>
                 <div class="wiki">
                     <ul class="wiki-items" data-bind="foreach: wikiResult">
@@ -118,7 +120,7 @@
                             <a data-bind="text: title, attr:{href: link}"></a>
                         </li>
                     </ul>
-                    <div class="wiki-error"></div>
+                    <div class="wiki-error" data-bind="text: wikiError"></div>
                     <span class="wiki-attrib">Powered by Wikipedia</span>
                 </div>
             </div>
