@@ -124,6 +124,7 @@ $('#nav-trigger').on('change', function() {
 function ViewModel(map) {
     var self = this;
 
+    // Define all members
     // Create a new blank array for all the location markers.
     self.markers = ko.observableArray();
     self.markersList = ko.observableArray();
@@ -132,6 +133,7 @@ function ViewModel(map) {
     self.wikiResult = ko.observableArray();
     self.currentFsquareResult = ko.observable();
     self.filterText = ko.observable();
+    self.searchbox = ko.observable();
     self.navData = {};
     self.locations = [];
     self.currentMarker = new google.maps.Marker();
@@ -204,6 +206,7 @@ function ViewModel(map) {
     @param {object} The selected type
     */
     self.filterbyCategory = function(data) {
+        self.filteredList.removeAll();
         var boundaries = [];
         self.markersList().forEach(function(place) {
             if (place.type == data) {
@@ -335,6 +338,9 @@ function ViewModel(map) {
 
             // Reset the filter textbox
             self.filterText('');
+
+            // Reload markers
+            self.filterMarkers();
         }
     };
 
@@ -343,7 +349,11 @@ function ViewModel(map) {
     @param {string} The title of the filter
     */
     self.removeFilter = function(data) {
+        // Remove marker
         self.filteredList.remove(data);
+
+        // Reload markers
+        self.filterMarkers();
     };
 
     /**
@@ -414,7 +424,6 @@ function ViewModel(map) {
     };
 
     self.cancelNavigation = function(){
-        console.log("HERE");
         self.directionsDisplay.setMap(null);
         self.showMarkers();
         self.showMap();
@@ -600,70 +609,6 @@ function ViewModel(map) {
     @param {InfoBubble} The infobubble to populate
     */
     self.populateInfoBubble = function(marker, infoBubble) {
-        // TODO : Hardcode content of infowindow
-        // // Clear the infobubble content to give apis
-        // // time to load.
-        // infoBubble.setContent('');
-
-        // var streetView = new google.maps.StreetViewService();
-        // var radius = 50;
-
-        // // Create content for infobubble
-        // var panoHeading, moreInfo, panorama, content;
-        // infoBubble.marker = marker;
-        // panoHeading = marker.title;
-
-        // // Make sure the marker property is
-        // // cleared if the infobubble is closed.
-        // infoBubble.addListener('click', function() {
-        //     infoBubble.marker = null;
-        // });
-
-
-        // // In case the status is OK, which means the pano was found, compute the
-        // // position of the streetview image, then calculate the heading, then get a
-        // // panorama from that and set the options
-        // function getStreetView(data, status) {
-        //     if (status === google.maps.StreetViewStatus.OK) {
-        //         var nearStreetViewLocation = data.location.latLng;
-        //         var heading = google.maps.geometry.spherical.computeHeading(
-        //             nearStreetViewLocation, marker.position);
-        //         var panoOptions = {
-        //             position: nearStreetViewLocation,
-        //             pov: {
-        //                 heading: heading,
-        //                 pitch: 10
-        //             }
-        //         };
-
-        //         panorama = new google.maps.StreetViewPanorama(
-        //             document.getElementById('pano'), panoOptions);
-        //     } else {
-        //         panorama = "No StreetView found";
-        //     }
-        // }
-
-        // // Use streetview service to get the closest streetview image within
-        // // 50 meters of the markers position
-        // streetView.getPanoramaByLocation(marker.position,
-        //     radius, getStreetView);
-
-        // content = '<div>';
-        // content += '<h1 id="info-heading">' + panoHeading + '</h1>';
-        // content += '<div id="pano"></div>';
-        // content += '<div id="moreInfo">';
-        // content += '<button class="moreInfo-button" onclick="moreInfoClick()">More Info</button>';
-        // content += '</div>';
-        // content += '</div>';
-        // infoBubble.setContent(content);
-
-        // // Open the infobubble on the correct marker.
-        // infoBubble.open(map, marker);
-        // function moreInfoClick(){
-        //     self.showResults(marker);
-        //     event.stopPropagation();
-        // };
-
         // Clear the infobubble content to give apis
         // time to load.
         infoBubble.setContent('');
@@ -815,7 +760,7 @@ function ViewModel(map) {
     */
     self.hideMenu = function() {
         // Clear search location and hide the menu
-        $('.search-box').val('');
+        self.searchbox('');
         $('#nav-trigger').prop('checked', false);
 
         // Close info window if opened

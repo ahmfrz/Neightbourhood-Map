@@ -30,7 +30,7 @@
             </nav>
             <main>
                 <article class="search-container">
-                    <input type="search" class="search-box" placeholder="Search Location" autofocus>
+                    <input type="search" class="search-box" data-bind="textInput: $root.searchbox" placeholder="Search Location" autofocus>
                     <button class="search-marker" data-bind="click: addMarker">
                         <span>Add</span>
                         <i class="material-icons">add</i>
