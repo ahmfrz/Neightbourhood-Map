@@ -135,6 +135,7 @@ function ViewModel(map) {
     self.navInfoMarkerText = ko.observable();
     self.navInfoDistanceText = ko.observable();
     self.navInfoDurationText = ko.observable();
+    self.cancelNav = ko.observable(false);
     self.fsquareError = ko.observable();
     self.wikiError = ko.observable();
     self.navData = {};
@@ -431,15 +432,18 @@ function ViewModel(map) {
         }
     };
 
+    /**
+    @description Cancels navigation
+    */
     self.cancelNavigation = function(){
         self.directionsDisplay.setMap(null);
         self.showMarkers();
         self.showMap();
-        $('.cancel-nav').removeClass('cancel-visible');
+        self.cancelNav(false);
 
         // Clear nav data object to reset info area
         self.navData.navInfo = undefined;
-    }
+    };
 
     /**
     @description Shows navigation
@@ -469,7 +473,7 @@ function ViewModel(map) {
                 self.directionsDisplay.setMap(map);
                 self.directionsDisplay.setDirections(response);
 
-                $('.cancel-nav').addClass('cancel-visible');
+                self.cancelNav(true);
             } else {
                 window.alert('Directions request failed due to ' + status);
             }
@@ -482,7 +486,7 @@ function ViewModel(map) {
     */
     self.showFsqaureResult = function(venue){
         self.currentFsquareResult(venue);
-    }
+    };
 
     /**
     @description Shows navigation to selected Foursquare venue
@@ -493,7 +497,7 @@ function ViewModel(map) {
         self.showMap();
         var current = { lat: self.currentMarker.position.lat(), lng: self.currentMarker.position.lng() };
         self.navigate(current, venue.location, 'driving');
-    }
+    };
 
     /**
     @description Gets third party result from Foursquare api
@@ -619,29 +623,25 @@ function ViewModel(map) {
     @param {InfoBubble} The infobubble to populate
     */
     self.populateInfoBubble = function(marker, infoBubble) {
-        // Clear the infobubble content to give apis
-        // time to load.
-        infoBubble.setContent('');
-
-
         // Set current marker
         self.currentMarker = marker;
+
+        // Clear old content
+        infoBubble.setContent('');
+
+        var streetView = new google.maps.StreetViewService();
+        var radius = 50;
+
         // Create content for infobubble
-        var infoContent = document.createElement('div');
-        $(infoContent).append('<h1 id="info-heading"></h1>');
-        $(infoContent).append('<div id="pano"></div>');
-        $(infoContent).append('<div id="moreInfo"></div>');
-        infoBubble.setContent(infoContent);
+        var panorama, content, panoHeading;
         infoBubble.marker = marker;
+        panoHeading = marker.title;
 
         // Make sure the marker property is
         // cleared if the infobubble is closed.
         infoBubble.addListener('click', function() {
-            infoBubble.marker = null;
+             infoBubble.marker = null;
         });
-
-        var streetView = new google.maps.StreetViewService();
-        var radius = 50;
 
         // In case the status is OK, which means the pano was found, compute the
         // position of the streetview image, then calculate the heading, then get a
@@ -651,7 +651,6 @@ function ViewModel(map) {
                 var nearStreetViewLocation = data.location.latLng;
                 var heading = google.maps.geometry.spherical.computeHeading(
                     nearStreetViewLocation, marker.position);
-                $(infoContent.children[0]).html(marker.title);
                 var panoOptions = {
                     position: nearStreetViewLocation,
                     pov: {
@@ -660,11 +659,10 @@ function ViewModel(map) {
                     }
                 };
 
-                var panorama = new google.maps.StreetViewPanorama(
-                    $(infoContent.children[1])[0], panoOptions);
+                panorama = new google.maps.StreetViewPanorama(
+                    document.getElementById('pano'), panoOptions);
             } else {
-                $(infoContent.children[0]).html(marker.title);
-                $(infoContent.children[1]).html("No StreetView found");
+                panorama = "No StreetView found";
             }
         }
 
@@ -673,13 +671,46 @@ function ViewModel(map) {
         streetView.getPanoramaByLocation(marker.position,
             radius, getStreetView);
 
+        content = '<div>';
+        content += '<h1 id="info-heading">' + panoHeading + '</h1>';
+        content += '<div id="pano"></div>';
+        content += '<div id="moreInfo">';
+        content += '<button id="moreInfo-button" class="moreInfo-button" data-bind="click: moreInfoClicked">More Info</button>';
+        content += '</div>';
+        content += '</div>';
+        infoBubble.setContent(content);
+
         // Open the infobubble on the correct marker.
         infoBubble.open(map, marker);
-        $(infoContent.children[2]).append('<button class="moreInfo-button">More Info</button>');
-        $(infoContent.children[2]).on('click', function(event) {
-            self.showResults(marker);
-            event.stopPropagation();
-        });
+
+        // Reapply bindings as new content is added on DOM
+        function reapplyBindings(timer){
+            try{
+                ko.applyBindings(self, document.getElementById('moreInfo-button'));
+
+                // Once bindings are applied successfully stop the timer
+                clearInterval(timer);
+            }
+            catch(exception){
+                console.log("Could not bind, try again in 150ms");
+            }
+         }
+
+        // Sometimes the InfoBubble takes time to open
+        // Due to which 'moreInfo-Button' element is not found
+        // Try applying ko bindings every 150ms until button element is found
+        // And bindings are applied successfully
+        var bindingTimer = setInterval(function() {
+            reapplyBindings(bindingTimer);
+        }, 150);
+    };
+
+    /**
+    @description Shows third party API results area
+    */
+    self.moreInfoClicked = function(){
+        self.showResults(self.currentMarker);
+        event.stopPropagation();
     };
 
     /**
